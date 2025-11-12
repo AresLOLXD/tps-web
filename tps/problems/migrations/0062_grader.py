@@ -8,24 +8,65 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('file_repository', '0006_auto_20161108_2010'),
-        ('problems', '0061_auto_20161221_2124'),
+        ("file_repository", "0006_auto_20161108_2010"),
+        ("problems", "0061_auto_20161221_2124"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Grader',
+            name="Grader",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(blank=True, db_index=True, max_length=255, validators=[django.core.validators.RegexValidator(code='invalid_file_name', inverse_match=False, message='Please enter a valid file name.', regex='^[a-zA-Z0-9_\\-](?:\\.|[a-zA-Z0-9_\\-])*$')], verbose_name='name')),
-                ('language', models.CharField(max_length=20, null=True, verbose_name='language')),
-                ('code', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='code')),
-                ('problem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.ProblemRevision', verbose_name='problem')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        blank=True,
+                        db_index=True,
+                        max_length=255,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                code="invalid_file_name",
+                                inverse_match=False,
+                                message="Please enter a valid file name.",
+                                regex="^[a-zA-Z0-9_\\-](?:\\.|[a-zA-Z0-9_\\-])*$",
+                            )
+                        ],
+                        verbose_name="name",
+                    ),
+                ),
+                (
+                    "language",
+                    models.CharField(max_length=20, null=True, verbose_name="language"),
+                ),
+                (
+                    "code",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        related_name="+",
+                        to="file_repository.FileModel",
+                        verbose_name="code",
+                    ),
+                ),
+                (
+                    "problem",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.ProblemRevision",
+                        verbose_name="problem",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

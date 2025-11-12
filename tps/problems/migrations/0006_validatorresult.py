@@ -7,24 +7,51 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0005_auto_20160731_2252'),
+        ("problems", "0005_auto_20160731_2252"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ValidatorResult',
+            name="ValidatorResult",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('exit_code', models.CharField(max_length=200, verbose_name='exit code')),
-                ('exit_status', models.CharField(max_length=200, verbose_name='exit status')),
-                ('testcase', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.TestCase', verbose_name='testcase')),
-                ('validator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.Validator', verbose_name='validator')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "exit_code",
+                    models.CharField(max_length=200, verbose_name="exit code"),
+                ),
+                (
+                    "exit_status",
+                    models.CharField(max_length=200, verbose_name="exit status"),
+                ),
+                (
+                    "testcase",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.TestCase",
+                        verbose_name="testcase",
+                    ),
+                ),
+                (
+                    "validator",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.Validator",
+                        verbose_name="validator",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=(models.Model, ),
+            bases=(models.Model,),
         ),
     ]

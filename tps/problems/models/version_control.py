@@ -16,18 +16,22 @@ __all__ = ["RevisionObject", "Merge", "Conflict", "CloneableMixin"]
 
 class RevisionObjectQuerySet(models.QuerySet):
     def find_matches(self, second_queryset, matching_fields=None):
-
         if isinstance(second_queryset, models.Manager):
             second_queryset = second_queryset.all()
 
         if matching_fields is None:
             matching_fields = self.model.get_matching_fields()
-        assert len(matching_fields) > 0, "At least one field must be specified for matching"
+        assert len(matching_fields) > 0, (
+            "At least one field must be specified for matching"
+        )
 
         pk_name = self.model._meta.pk.name
-        constraints = " AND ".join([
-            "current.{0}=matched.{0}".format(a if a != "pk" else pk_name) for a in matching_fields
-        ])
+        constraints = " AND ".join(
+            [
+                "current.{0}=matched.{0}".format(a if a != "pk" else pk_name)
+                for a in matching_fields
+            ]
+        )
 
         current_map = {}
         for obj in self.all():
@@ -41,6 +45,7 @@ class RevisionObjectQuerySet(models.QuerySet):
         # it's faster to handle matching in Python
 
         from django.db import connection
+
         with connection.cursor() as c:
             result = []
 
@@ -49,23 +54,31 @@ class RevisionObjectQuerySet(models.QuerySet):
             # TODO: we could try using full outer joins and
             # TODO: fallback to this method only if failed
 
-            sql_query = "" \
-                        "SELECT current.{pk_name}, matched.{pk_name} FROM ({first_queryset}) current " \
-                        "LEFT OUTER JOIN ({second_queryset}) matched ON {join_constraints};" \
-                        "".format(first_queryset=str(self.query),
-                                  second_queryset=str(second_queryset.query),
-                                  pk_name=pk_name,
-                                  join_constraints=constraints)
+            sql_query = (
+                ""
+                "SELECT current.{pk_name}, matched.{pk_name} FROM ({first_queryset}) current "
+                "LEFT OUTER JOIN ({second_queryset}) matched ON {join_constraints};"
+                "".format(
+                    first_queryset=str(self.query),
+                    second_queryset=str(second_queryset.query),
+                    pk_name=pk_name,
+                    join_constraints=constraints,
+                )
+            )
             c.execute(sql_query)
             for a, b in c.fetchall():
                 result.append((current_map.get(a, None), other_map.get(b, None)))
-            sql_query = "" \
-                        "SELECT current.{pk_name}, matched.{pk_name} FROM ({second_queryset}) matched " \
-                        "LEFT OUTER JOIN ({first_queryset}) current ON {join_constraints} WHERE current.{pk_name} IS NULL;" \
-                        "".format(first_queryset=str(self.query),
-                                  second_queryset=str(second_queryset.query),
-                                  pk_name=pk_name,
-                                  join_constraints=constraints)
+            sql_query = (
+                ""
+                "SELECT current.{pk_name}, matched.{pk_name} FROM ({second_queryset}) matched "
+                "LEFT OUTER JOIN ({first_queryset}) current ON {join_constraints} WHERE current.{pk_name} IS NULL;"
+                "".format(
+                    first_queryset=str(self.query),
+                    second_queryset=str(second_queryset.query),
+                    pk_name=pk_name,
+                    join_constraints=constraints,
+                )
+            )
             c.execute(sql_query)
 
             for a, b in c.fetchall():
@@ -81,13 +94,17 @@ class CloneableMixin(object):
     @staticmethod
     def clone_queryset(queryset, cloned_instances, replace_objects=None):
         for obj in queryset.all():
-            cloned_instances = obj.clone(cloned_instances=cloned_instances, replace_objects=replace_objects)
+            cloned_instances = obj.clone(
+                cloned_instances=cloned_instances, replace_objects=replace_objects
+            )
         return cloned_instances
 
     @staticmethod
     def clone_queryset_relations(queryset, cloned_instances, ignored_instances):
         for obj in queryset.all():
-            obj.clone_relations(cloned_instances=cloned_instances, ignored_instances=ignored_instances)
+            obj.clone_relations(
+                cloned_instances=cloned_instances, ignored_instances=ignored_instances
+            )
         return cloned_instances
 
     def _clean_for_clone(self, cloned_instances):
@@ -99,7 +116,9 @@ class CloneableMixin(object):
         if not replace_objects:
             replace_objects = {}
         if self not in cloned_instances:
-            cloned_instances[self] = self.clone_model(self, cloned_instances, replace_objects.get(self, None))
+            cloned_instances[self] = self.clone_model(
+                self, cloned_instances, replace_objects.get(self, None)
+            )
         return cloned_instances
 
     def clone_relations(self, cloned_instances, ignored_instances):
@@ -146,8 +165,9 @@ class MatchableMixin(object):
             return False
 
 
-class RevisionObject(models.Model, MatchableMixin, CloneableMixin, metaclass=AbstractModelMeta):
-
+class RevisionObject(
+    models.Model, MatchableMixin, CloneableMixin, metaclass=AbstractModelMeta
+):
     objects = RevisionObjectManager.from_queryset(RevisionObjectQuerySet)()
 
     def _clean_for_clone(self, cloned_instances):
@@ -190,31 +210,35 @@ class RevisionObject(models.Model, MatchableMixin, CloneableMixin, metaclass=Abs
 
 
 class Merge(models.Model):
-    merged_revision = models.OneToOneField("ProblemRevision", related_name='merge_result')
-    our_revision = models.ForeignKey("ProblemRevision", related_name='+')
-    their_revision = models.ForeignKey("ProblemRevision", related_name='+')
-    base_revision = models.ForeignKey("ProblemRevision", related_name='+', null=True)
+    merged_revision = models.OneToOneField(
+        "ProblemRevision", related_name="merge_result"
+    )
+    our_revision = models.ForeignKey("ProblemRevision", related_name="+")
+    their_revision = models.ForeignKey("ProblemRevision", related_name="+")
+    base_revision = models.ForeignKey("ProblemRevision", related_name="+", null=True)
 
 
 class Conflict(models.Model):
-    merge = models.ForeignKey(Merge, related_name='conflicts')
+    merge = models.ForeignKey(Merge, related_name="conflicts")
 
-    current_content_type = models.ForeignKey(ContentType, null=True, related_name='+')
+    current_content_type = models.ForeignKey(ContentType, null=True, related_name="+")
     current_id = models.PositiveIntegerField(null=True)
     current = GenericForeignKey("current_content_type", "current_id")
 
-    ours_content_type = models.ForeignKey(ContentType, null=True, related_name='+')
+    ours_content_type = models.ForeignKey(ContentType, null=True, related_name="+")
     ours_id = models.PositiveIntegerField(null=True)
     ours = GenericForeignKey("theirs_content_type", "ours_id")
 
-    theirs_content_type = models.ForeignKey(ContentType, null=True, related_name='+')
+    theirs_content_type = models.ForeignKey(ContentType, null=True, related_name="+")
     theirs_id = models.PositiveIntegerField(null=True)
     theirs = GenericForeignKey("ours_content_type", "theirs_id")
 
     resolved = models.BooleanField(default=False, null=False)
 
     def __str__(self):
-        return "Conflict ({}) -> {}:{}".format(self.content_type, self.ours_id, self.theirs_id)
+        return "Conflict ({}) -> {}:{}".format(
+            self.content_type, self.ours_id, self.theirs_id
+        )
 
 
 def get_model_as_dict(obj, included_fields=None, excluded_fields=None):
@@ -226,13 +250,13 @@ def get_model_as_dict(obj, included_fields=None, excluded_fields=None):
     :param excluded_fields: List[str] or None
     :return str
     """
-    full_dump = json.loads(serializers.serialize('json', [obj]))[0]
+    full_dump = json.loads(serializers.serialize("json", [obj]))[0]
     if excluded_fields is not None:
         for excluded_field in excluded_fields:
-            full_dump['fields'].pop(excluded_field)
+            full_dump["fields"].pop(excluded_field)
     if included_fields is None:
-        included_fields = sorted([k for k, v in full_dump['fields'].items()])
+        included_fields = sorted([k for k, v in full_dump["fields"].items()])
     limited_dump = OrderedDict()
     for k in included_fields:
-        limited_dump[k] = str(full_dump['fields'][k])
+        limited_dump[k] = str(full_dump["fields"][k])
     return limited_dump

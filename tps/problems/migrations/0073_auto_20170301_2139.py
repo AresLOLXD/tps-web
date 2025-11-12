@@ -8,29 +8,43 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0072_auto_20170228_2100'),
+        ("problems", "0072_auto_20170228_2100"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='comment',
-            options={'get_latest_by': 'posting_date', 'ordering': ('topic_content_type', 'topic_id', 'posting_date')},
+            name="comment",
+            options={
+                "get_latest_by": "posting_date",
+                "ordering": ("topic_content_type", "topic_id", "posting_date"),
+            },
         ),
         migrations.AlterField(
-            model_name='problembranch',
-            name='name',
-            field=models.CharField(max_length=30, validators=[django.core.validators.RegexValidator('\\w{1,30}')], verbose_name='name'),
+            model_name="problembranch",
+            name="name",
+            field=models.CharField(
+                max_length=30,
+                validators=[django.core.validators.RegexValidator("\\w{1,30}")],
+                verbose_name="name",
+            ),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='problem',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.ProblemRevision', verbose_name='problem'),
+            model_name="problemdata",
+            name="problem",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                to="problems.ProblemRevision",
+                verbose_name="problem",
+            ),
         ),
         migrations.AlterField(
-            model_name='solutionrun',
-            name='problem',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.ProblemRevision', verbose_name='problem'),
+            model_name="solutionrun",
+            name="problem",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                to="problems.ProblemRevision",
+                verbose_name="problem",
+            ),
         ),
     ]

@@ -7,26 +7,60 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0056_auto_20161208_0823'),
+        ("problems", "0056_auto_20161208_0823"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ValidatorResult',
+            name="ValidatorResult",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('exit_status', models.CharField(max_length=200, null=True, verbose_name='exit status')),
-                ('valid', models.NullBooleanField(default=None, verbose_name='valid')),
-                ('executed', models.BooleanField(default=False, verbose_name='executed')),
-                ('validation_message', models.TextField(verbose_name='validation message')),
-                ('testcase', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='validation_results', to='problems.TestCase', verbose_name='testcase')),
-                ('validator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='results', to='problems.Validator', verbose_name='validator')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "exit_status",
+                    models.CharField(
+                        max_length=200, null=True, verbose_name="exit status"
+                    ),
+                ),
+                ("valid", models.NullBooleanField(default=None, verbose_name="valid")),
+                (
+                    "executed",
+                    models.BooleanField(default=False, verbose_name="executed"),
+                ),
+                (
+                    "validation_message",
+                    models.TextField(verbose_name="validation message"),
+                ),
+                (
+                    "testcase",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        related_name="validation_results",
+                        to="problems.TestCase",
+                        verbose_name="testcase",
+                    ),
+                ),
+                (
+                    "validator",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        related_name="results",
+                        to="problems.Validator",
+                        verbose_name="validator",
+                    ),
+                ),
             ],
         ),
         migrations.AlterUniqueTogether(
-            name='validatorresult',
-            unique_together=set([('testcase', 'validator')]),
+            name="validatorresult",
+            unique_together=set([("testcase", "validator")]),
         ),
     ]

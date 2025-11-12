@@ -10,44 +10,68 @@ from django.utils.timezone import utc
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('problems', '0011_auto_20160903_1301'),
+        ("problems", "0011_auto_20160903_1301"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problem',
-            name='creation_date',
-            field=models.DateTimeField(auto_now_add=True, default=datetime.datetime(2016, 9, 12, 9, 34, 36, 661764, tzinfo=utc), verbose_name='creation date'),
+            model_name="problem",
+            name="creation_date",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=datetime.datetime(2016, 9, 12, 9, 34, 36, 661764, tzinfo=utc),
+                verbose_name="creation date",
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='problem',
-            name='owner',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='revision owner'),
+            model_name="problem",
+            name="owner",
+            field=models.ForeignKey(
+                default=None,
+                on_delete=models.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="revision owner",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='problem',
-            name='master_revision',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='problems.ProblemRevision', verbose_name='master revision'),
+            model_name="problem",
+            name="master_revision",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="problems.ProblemRevision",
+                verbose_name="master revision",
+            ),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='memory_limit',
-            field=models.IntegerField(default=256, help_text='in megabytes', verbose_name='memory limit'),
+            model_name="problemdata",
+            name="memory_limit",
+            field=models.IntegerField(
+                default=256, help_text="in megabytes", verbose_name="memory limit"
+            ),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='time_limit',
-            field=models.FloatField(default=2, help_text='in seconds', verbose_name='time limt'),
+            model_name="problemdata",
+            name="time_limit",
+            field=models.FloatField(
+                default=2, help_text="in seconds", verbose_name="time limt"
+            ),
         ),
         migrations.AlterField(
-            model_name='problemrevision',
-            name='problem',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='problems.Problem', verbose_name='problem'),
+            model_name="problemrevision",
+            name="problem",
+            field=models.ForeignKey(
+                default=None,
+                on_delete=models.CASCADE,
+                to="problems.Problem",
+                verbose_name="problem",
+            ),
             preserve_default=False,
         ),
     ]

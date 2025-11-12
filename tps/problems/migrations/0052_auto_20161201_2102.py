@@ -8,37 +8,67 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('file_repository', '0006_auto_20161108_2010'),
-        ('problems', '0051_auto_20161201_1705'),
+        ("file_repository", "0006_auto_20161108_2010"),
+        ("problems", "0051_auto_20161201_1705"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='checker',
-            name='source_file',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='file'),
+            model_name="checker",
+            name="source_file",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="file",
+            ),
         ),
         migrations.AlterField(
-            model_name='inputgenerator',
-            name='source_file',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='file'),
+            model_name="inputgenerator",
+            name="source_file",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="file",
+            ),
         ),
         migrations.AlterField(
-            model_name='resource',
-            name='name',
-            field=models.CharField(blank=True, max_length=50, validators=[django.core.validators.RegexValidator(code='invalid_file_name', inverse_match=False, message='Please enter a valid file name.', regex='^[a-zA-Z0-9_\\-](?:\\.|[a-zA-Z0-9_\\-])*$')], verbose_name='name'),
+            model_name="resource",
+            name="name",
+            field=models.CharField(
+                blank=True,
+                max_length=50,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        code="invalid_file_name",
+                        inverse_match=False,
+                        message="Please enter a valid file name.",
+                        regex="^[a-zA-Z0-9_\\-](?:\\.|[a-zA-Z0-9_\\-])*$",
+                    )
+                ],
+                verbose_name="name",
+            ),
         ),
         migrations.AlterField(
-            model_name='validator',
-            name='source_file',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='file'),
+            model_name="validator",
+            name="source_file",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="file",
+            ),
         ),
         migrations.AlterField(
-            model_name='resource',
-            name='file',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='file'),
+            model_name="resource",
+            name="file",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="file",
+            ),
         ),
-
     ]

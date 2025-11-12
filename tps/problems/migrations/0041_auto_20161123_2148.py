@@ -7,42 +7,65 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0040_auto_20161123_2106'),
+        ("problems", "0040_auto_20161123_2106"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Script',
+            name="Script",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=256, verbose_name='title')),
-                ('script', models.TextField(verbose_name='script')),
-                ('disabled', models.BooleanField(default=False, verbose_name='disabled')),
-                ('problem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.ProblemRevision', verbose_name='problem')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=256, verbose_name="title")),
+                ("script", models.TextField(verbose_name="script")),
+                (
+                    "disabled",
+                    models.BooleanField(default=False, verbose_name="disabled"),
+                ),
+                (
+                    "problem",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.ProblemRevision",
+                        verbose_name="problem",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.RemoveField(
-            model_name='subtask',
-            name='testcases',
+            model_name="subtask",
+            name="testcases",
         ),
         migrations.AddField(
-            model_name='testcase',
-            name='subtasks',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='problems.Subtask'),
+            model_name="testcase",
+            name="subtasks",
+            field=models.ForeignKey(
+                null=True, on_delete=models.CASCADE, to="problems.Subtask"
+            ),
         ),
         migrations.AlterField(
-            model_name='testcase',
-            name='name',
-            field=models.CharField(blank=True, editable=False, max_length=20, verbose_name='name'),
+            model_name="testcase",
+            name="name",
+            field=models.CharField(
+                blank=True, editable=False, max_length=20, verbose_name="name"
+            ),
         ),
         migrations.AddField(
-            model_name='testcase',
-            name='script',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='problems.Script'),
+            model_name="testcase",
+            name="script",
+            field=models.ForeignKey(
+                null=True, on_delete=models.CASCADE, to="problems.Script"
+            ),
         ),
     ]

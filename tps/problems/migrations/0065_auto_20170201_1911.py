@@ -7,37 +7,80 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0064_merge'),
+        ("problems", "0064_merge"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SolutionSubtaskExpectedVerdict',
+            name="SolutionSubtaskExpectedVerdict",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('verdict', models.CharField(choices=[('model_solution', 'Model solution'), ('correct', 'Correct'), ('time_limit', 'Time limit'), ('memory_limit', 'Memory limit'), ('incorrect', 'Incorrect'), ('runtime_error', 'Runtime error'), ('failed', 'Failed'), ('time_limit_and_runtime_error', 'Time limit / Runtime error')], max_length=50, verbose_name='verdict')),
-                ('solution', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.Solution', verbose_name='solution')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "verdict",
+                    models.CharField(
+                        choices=[
+                            ("model_solution", "Model solution"),
+                            ("correct", "Correct"),
+                            ("time_limit", "Time limit"),
+                            ("memory_limit", "Memory limit"),
+                            ("incorrect", "Incorrect"),
+                            ("runtime_error", "Runtime error"),
+                            ("failed", "Failed"),
+                            (
+                                "time_limit_and_runtime_error",
+                                "Time limit / Runtime error",
+                            ),
+                        ],
+                        max_length=50,
+                        verbose_name="verdict",
+                    ),
+                ),
+                (
+                    "solution",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.Solution",
+                        verbose_name="solution",
+                    ),
+                ),
             ],
         ),
         migrations.AlterField(
-            model_name='subtask',
-            name='testcases',
-            field=models.ManyToManyField(related_name='subtasks', to='problems.TestCase', verbose_name='testcases'),
+            model_name="subtask",
+            name="testcases",
+            field=models.ManyToManyField(
+                related_name="subtasks",
+                to="problems.TestCase",
+                verbose_name="testcases",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionsubtaskexpectedverdict',
-            name='subtask',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.Subtask', verbose_name='subtask'),
+            model_name="solutionsubtaskexpectedverdict",
+            name="subtask",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE, to="problems.Subtask", verbose_name="subtask"
+            ),
         ),
         migrations.AddField(
-            model_name='solution',
-            name='subtask_verdict',
-            field=models.ManyToManyField(related_name='_solution_subtask_verdict_+', through='problems.SolutionSubtaskExpectedVerdict', to='problems.Subtask'),
+            model_name="solution",
+            name="subtask_verdict",
+            field=models.ManyToManyField(
+                related_name="_solution_subtask_verdict_+",
+                through="problems.SolutionSubtaskExpectedVerdict",
+                to="problems.Subtask",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='solutionsubtaskexpectedverdict',
-            unique_together=set([('solution', 'subtask')]),
+            name="solutionsubtaskexpectedverdict",
+            unique_together=set([("solution", "subtask")]),
         ),
     ]

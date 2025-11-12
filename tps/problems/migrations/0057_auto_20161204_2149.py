@@ -7,20 +7,25 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0056_merge'),
+        ("problems", "0056_merge"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='exportpackage',
-            name='exporter',
-            field=models.CharField(choices=[('json_file', 'json_file')], max_length=20, verbose_name='exporter'),
+            model_name="exportpackage",
+            name="exporter",
+            field=models.CharField(
+                choices=[("json_file", "json_file")],
+                max_length=20,
+                verbose_name="exporter",
+            ),
         ),
         migrations.AlterField(
-            model_name='exportpackage',
-            name='problem',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='exports', to='problems.Problem'),
+            model_name="exportpackage",
+            name="problem",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE, related_name="exports", to="problems.Problem"
+            ),
         ),
     ]

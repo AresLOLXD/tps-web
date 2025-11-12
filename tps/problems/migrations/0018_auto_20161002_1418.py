@@ -7,24 +7,39 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0017_auto_20160924_2153'),
+        ("problems", "0017_auto_20160924_2153"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='problem',
-            name='master_revision',
+            model_name="problem",
+            name="master_revision",
         ),
         migrations.AddField(
-            model_name='problemfork',
-            name='working_copy',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='fork', to='problems.ProblemRevision', verbose_name='working copy'),
+            model_name="problemfork",
+            name="working_copy",
+            field=models.OneToOneField(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="fork",
+                to="problems.ProblemRevision",
+                verbose_name="working copy",
+            ),
         ),
         migrations.AlterField(
-            model_name='discussion',
-            name='priority',
-            field=models.CharField(choices=[('0', 'info - no effect on correctness '), ('1', 'low'), ('2', 'medium'), ('3', 'high')], default='2', max_length=100, verbose_name='priority'),
+            model_name="discussion",
+            name="priority",
+            field=models.CharField(
+                choices=[
+                    ("0", "info - no effect on correctness "),
+                    ("1", "low"),
+                    ("2", "medium"),
+                    ("3", "high"),
+                ],
+                default="2",
+                max_length=100,
+                verbose_name="priority",
+            ),
         ),
     ]

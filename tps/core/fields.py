@@ -11,7 +11,7 @@ from django.utils.encoding import force_text
 class EnumChoiceField(TypedChoiceField):
     def prepare_value(self, value):
         if value is None:
-            return ''
+            return ""
         if isinstance(value, Enum):
             value = value.name
         return force_text(value)
@@ -32,16 +32,14 @@ class EnumField(models.CharField):
         if "default" in kwargs:
             kwargs["default"] = self.to_python(kwargs["default"])
 
-        kwargs.setdefault("max_length", max(
-            [len(i.name) for i in self.enum]
-        ))
+        kwargs.setdefault("max_length", max([len(i.name) for i in self.enum]))
 
         super(EnumField, self).__init__(**kwargs)
 
         self.validators = self.validators[:-1]
 
     def to_python(self, value):
-        if value is None or value == '':
+        if value is None or value == "":
             return None
         if isinstance(value, self.enum):
             return value
@@ -53,14 +51,14 @@ class EnumField(models.CharField):
             return None
         return value.name
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         if value is None:
             return None
         return self.to_python(value)
 
     def deconstruct(self):
         name, path, args, kwargs = super(EnumField, self).deconstruct()
-        kwargs['enum'] = self.enum
+        kwargs["enum"] = self.enum
         if not self.passed_choices:
             kwargs.pop("choices")
         if "default" in kwargs and isinstance(kwargs["default"], self.enum):
@@ -72,12 +70,13 @@ class EnumField(models.CharField):
         return super(EnumField, self).formfield(**kwargs)
 
     def get_choices(self, *args, **kwargs):
-        return [(i.name if isinstance(i, self.enum) else i, _)
-                for i, _ in super(EnumField, self).get_choices(*args, **kwargs)]
+        return [
+            (i.name if isinstance(i, self.enum) else i, _)
+            for i, _ in super(EnumField, self).get_choices(*args, **kwargs)
+        ]
 
 
 class DictEnumField(EnumField):
-
     def to_python(self, value):
         if value is None:
             return None
@@ -93,4 +92,6 @@ class DictEnumField(EnumField):
         value = self.to_python(value)
         if value is None:
             return None
-        return json.dumps({a: super(DictEnumField, self).get_prep_value(b) for a, b in value.items()})
+        return json.dumps(
+            {a: super(DictEnumField, self).get_prep_value(b) for a, b in value.items()}
+        )

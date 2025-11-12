@@ -7,52 +7,66 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0003_auto_20160727_2022'),
+        ("problems", "0003_auto_20160727_2022"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problemdata',
-            name='memory_limit',
-            field=models.IntegerField(default=256, help_text='in megabytes', verbose_name='memory limit'),
+            model_name="problemdata",
+            name="memory_limit",
+            field=models.IntegerField(
+                default=256, help_text="in megabytes", verbose_name="memory limit"
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='problemdata',
-            name='time_limit',
-            field=models.FloatField(default=1, help_text='in seconds', verbose_name='time limt'),
+            model_name="problemdata",
+            name="time_limit",
+            field=models.FloatField(
+                default=1, help_text="in seconds", verbose_name="time limt"
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='checker',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='problems.SourceFile', verbose_name='checker'),
+            model_name="problemdata",
+            name="checker",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                to="problems.SourceFile",
+                verbose_name="checker",
+            ),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='problem',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='problem_data', to='problems.ProblemRevision'),
+            model_name="problemdata",
+            name="problem",
+            field=models.OneToOneField(
+                on_delete=models.CASCADE,
+                related_name="problem_data",
+                to="problems.ProblemRevision",
+            ),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='score_type',
-            field=models.CharField(max_length=150, null=True, verbose_name='score type'),
+            model_name="problemdata",
+            name="score_type",
+            field=models.CharField(
+                max_length=150, null=True, verbose_name="score type"
+            ),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='score_type_parameters',
-            field=models.TextField(null=True, verbose_name='score type parameters'),
+            model_name="problemdata",
+            name="score_type_parameters",
+            field=models.TextField(null=True, verbose_name="score type parameters"),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='task_type',
-            field=models.CharField(max_length=150, null=True, verbose_name='task type'),
+            model_name="problemdata",
+            name="task_type",
+            field=models.CharField(max_length=150, null=True, verbose_name="task type"),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='task_type_parameters',
-            field=models.TextField(null=True, verbose_name='task type parameters'),
+            model_name="problemdata",
+            name="task_type_parameters",
+            field=models.TextField(null=True, verbose_name="task type parameters"),
         ),
     ]

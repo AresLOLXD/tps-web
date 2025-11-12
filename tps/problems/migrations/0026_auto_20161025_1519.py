@@ -7,118 +7,154 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('file_repository', '0005_auto_20161011_1828'),
-        ('problems', '0025_auto_20161011_1840'),
+        ("file_repository", "0005_auto_20161011_1828"),
+        ("problems", "0025_auto_20161011_1840"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='solutionrunresult',
-            old_name='checker_contestant_comment',
-            new_name='contestant_message',
+            model_name="solutionrunresult",
+            old_name="checker_contestant_comment",
+            new_name="contestant_message",
         ),
         migrations.RemoveField(
-            model_name='solutionrunresult',
-            name='checker_jury_comment',
+            model_name="solutionrunresult",
+            name="checker_jury_comment",
         ),
         migrations.RemoveField(
-            model_name='solutionrunresult',
-            name='execution_time',
+            model_name="solutionrunresult",
+            name="execution_time",
         ),
         migrations.RemoveField(
-            model_name='solutionrunresult',
-            name='exit_code',
+            model_name="solutionrunresult",
+            name="exit_code",
         ),
         migrations.RemoveField(
-            model_name='solutionrunresult',
-            name='memory_usage',
+            model_name="solutionrunresult",
+            name="memory_usage",
         ),
         migrations.RemoveField(
-            model_name='solutionrunresult',
-            name='output_file',
+            model_name="solutionrunresult",
+            name="output_file",
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='checker_execution_success',
-            field=models.NullBooleanField(verbose_name='checker execution success'),
+            model_name="solutionrunresult",
+            name="checker_execution_success",
+            field=models.NullBooleanField(verbose_name="checker execution success"),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='checker_exit_code',
-            field=models.CharField(max_length=100, null=True, verbose_name='checker exit code'),
+            model_name="solutionrunresult",
+            name="checker_exit_code",
+            field=models.CharField(
+                max_length=100, null=True, verbose_name="checker exit code"
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='checker_standard_error',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='checker standard error'),
+            model_name="solutionrunresult",
+            name="checker_standard_error",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="checker standard error",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='checker_standard_output',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='checker standard output'),
+            model_name="solutionrunresult",
+            name="checker_standard_output",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="checker standard output",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution_execution_message',
-            field=models.TextField(null=True, verbose_name='solution execution message'),
+            model_name="solutionrunresult",
+            name="solution_execution_message",
+            field=models.TextField(
+                null=True, verbose_name="solution execution message"
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution_execution_success',
-            field=models.NullBooleanField(verbose_name='solution execution success'),
+            model_name="solutionrunresult",
+            name="solution_execution_success",
+            field=models.NullBooleanField(verbose_name="solution execution success"),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution_execution_time',
-            field=models.FloatField(null=True, verbose_name='solution execution time'),
+            model_name="solutionrunresult",
+            name="solution_execution_time",
+            field=models.FloatField(null=True, verbose_name="solution execution time"),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution_exit_code',
-            field=models.CharField(max_length=100, null=True, verbose_name='solution exit code'),
+            model_name="solutionrunresult",
+            name="solution_exit_code",
+            field=models.CharField(
+                max_length=100, null=True, verbose_name="solution exit code"
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution_memory_usage',
-            field=models.IntegerField(null=True, verbose_name='solution memory usage'),
+            model_name="solutionrunresult",
+            name="solution_memory_usage",
+            field=models.IntegerField(null=True, verbose_name="solution memory usage"),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution_output',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='solution output file'),
+            model_name="solutionrunresult",
+            name="solution_output",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="solution output file",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='verdict',
-            field=models.CharField(choices=[('1', 'Accept'), ('2', 'Wrong Answer'), ('3', 'Time Limit'), ('4', 'Memory Limit'), ('5', 'Presentation Error')], default='', max_length=100, verbose_name='verdict'),
+            model_name="solutionrunresult",
+            name="verdict",
+            field=models.CharField(
+                choices=[
+                    ("1", "Accept"),
+                    ("2", "Wrong Answer"),
+                    ("3", "Time Limit"),
+                    ("4", "Memory Limit"),
+                    ("5", "Presentation Error"),
+                ],
+                default="",
+                max_length=100,
+                verbose_name="verdict",
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='sourcefile',
-            name='last_compile_log',
-            field=models.TextField(default='', verbose_name='last compile log'),
+            model_name="sourcefile",
+            name="last_compile_log",
+            field=models.TextField(default="", verbose_name="last compile log"),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='validatorresult',
-            name='executed',
-            field=models.BooleanField(default=False, verbose_name='executed'),
+            model_name="validatorresult",
+            name="executed",
+            field=models.BooleanField(default=False, verbose_name="executed"),
         ),
         migrations.AddField(
-            model_name='validatorresult',
-            name='valid',
-            field=models.NullBooleanField(verbose_name='valid'),
+            model_name="validatorresult",
+            name="valid",
+            field=models.NullBooleanField(verbose_name="valid"),
         ),
         migrations.AlterField(
-            model_name='validatorresult',
-            name='exit_code',
-            field=models.CharField(max_length=200, null=True, verbose_name='exit code'),
+            model_name="validatorresult",
+            name="exit_code",
+            field=models.CharField(max_length=200, null=True, verbose_name="exit code"),
         ),
         migrations.AlterField(
-            model_name='validatorresult',
-            name='exit_status',
-            field=models.CharField(max_length=200, null=True, verbose_name='exit status'),
+            model_name="validatorresult",
+            name="exit_status",
+            field=models.CharField(
+                max_length=200, null=True, verbose_name="exit status"
+            ),
         ),
     ]

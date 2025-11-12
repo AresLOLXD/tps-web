@@ -9,9 +9,12 @@ from django.db.models.fields.related import lazy_related_operation
 from django.utils.functional import cached_property, curry
 
 from git_orm.models import GitToGitForeignKey
-from git_orm.models.fields import ReverseForeignKeyDescriptor, create_many_to_many_manager, ManyToManyDescriptor
+from git_orm.models.fields import (
+    ReverseForeignKeyDescriptor,
+    create_many_to_many_manager,
+    ManyToManyDescriptor,
+)
 from git_orm.transaction import Transaction
-
 
 
 def create_git_related_manager(superclass, field):
@@ -24,29 +27,33 @@ def create_git_related_manager(superclass, field):
     class ProblemGitRelatedObjectManager(superclass):
         def __init__(self, instance=None):
             from problems.models.problem import Problem
+
             super(ProblemGitRelatedObjectManager, self).__init__()
 
             self.instance = instance
 
             self.model = field.model
 
-            self.problem = Problem.objects.get(repository_path=instance._transaction.repo.path)
+            self.problem = Problem.objects.get(
+                repository_path=instance._transaction.repo.path
+            )
             self.commit_id = str(instance._transaction.parents[0])
             self.commit_id_field_name = field.commit_id_field_name
             self.problem_field_name = field.problem_field_name
             self.prefetch_cache_name = field.attname
 
             self.core_filters = {
-                '%s__pk' % self.problem_field_name: self.problem.pk,
+                "%s__pk" % self.problem_field_name: self.problem.pk,
                 self.commit_id_field_name: self.commit_id,
             }
 
         def __call__(self, **kwargs):
             # We use **kwargs rather than a kwarg argument to enforce the
             # `manager='manager_name'` syntax.
-            manager = getattr(self.model, kwargs.pop('manager'))
+            manager = getattr(self.model, kwargs.pop("manager"))
             manager_class = create_git_related_manager(manager.__class__, field)
             return manager_class(instance=self.instance)
+
         do_not_call_in_templates = True
 
         def __str__(self):
@@ -57,7 +64,12 @@ def create_git_related_manager(superclass, field):
                 return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
             except (AttributeError, KeyError):
                 db = self._db or router.db_for_read(self.model)
-                return super(ProblemGitRelatedObjectManager, self).get_queryset().using(db).filter(**self.core_filters)
+                return (
+                    super(ProblemGitRelatedObjectManager, self)
+                    .get_queryset()
+                    .using(db)
+                    .filter(**self.core_filters)
+                )
 
         def get_prefetch_queryset(self, instances, queryset=None):
             if queryset is None:
@@ -67,28 +79,35 @@ def create_git_related_manager(superclass, field):
             queryset = queryset.using(queryset._db or self._db)
 
             query = {
-                '%s__pk' % self.problem_field_name: self.problem.pk,
-                '%s__in' % self.commit_id_field_name: set(obj._get_pk_val() for obj in instances)
+                "%s__pk" % self.problem_field_name: self.problem.pk,
+                "%s__in" % self.commit_id_field_name: set(
+                    obj._get_pk_val() for obj in instances
+                ),
             }
 
             # We (possibly) need to convert object IDs to the type of the
             # instances' PK in order to match up instances:
             object_id_converter = instances[0]._meta.pk.to_python
-            return (queryset.filter(**query),
-                    lambda relobj: object_id_converter(getattr(relobj, self.object_id_field_name)),
-                    lambda obj: obj._get_pk_val(),
-                    False,
-                    self.prefetch_cache_name)
+            return (
+                queryset.filter(**query),
+                lambda relobj: object_id_converter(
+                    getattr(relobj, self.object_id_field_name)
+                ),
+                lambda obj: obj._get_pk_val(),
+                False,
+                self.prefetch_cache_name,
+            )
 
         def add(self, *objs, **kwargs):
-            bulk = kwargs.pop('bulk', True)
+            bulk = kwargs.pop("bulk", True)
             db = router.db_for_write(self.model)
 
             def check_and_update_obj(obj):
                 if not isinstance(obj, self.model):
-                    raise TypeError("'%s' instance expected, got %r" % (
-                        self.model._meta.object_name, obj
-                    ))
+                    raise TypeError(
+                        "'%s' instance expected, got %r"
+                        % (self.model._meta.object_name, obj)
+                    )
                 setattr(obj, self.content_type_field_name, self.content_type)
                 setattr(obj, self.object_id_field_name, self.pk_val)
 
@@ -103,24 +122,29 @@ def create_git_related_manager(superclass, field):
                     check_and_update_obj(obj)
                     pks.append(obj.pk)
 
-                self.model._base_manager.using(db).filter(pk__in=pks).update(**self.core_filters)
+                self.model._base_manager.using(db).filter(pk__in=pks).update(
+                    **self.core_filters
+                )
             else:
                 with transaction.atomic(using=db, savepoint=False):
                     for obj in objs:
                         check_and_update_obj(obj)
                         obj.save()
+
         add.alters_data = True
 
         def remove(self, *objs, **kwargs):
             if not objs:
                 return
-            bulk = kwargs.pop('bulk', True)
+            bulk = kwargs.pop("bulk", True)
             self._clear(self.filter(pk__in=[o.pk for o in objs]), bulk)
+
         remove.alters_data = True
 
         def clear(self, **kwargs):
-            bulk = kwargs.pop('bulk', True)
+            bulk = kwargs.pop("bulk", True)
             self._clear(self, bulk)
+
         clear.alters_data = True
 
         def _clear(self, queryset, bulk):
@@ -134,6 +158,7 @@ def create_git_related_manager(superclass, field):
                 with transaction.atomic(using=db, savepoint=False):
                     for obj in queryset:
                         obj.delete()
+
         _clear.alters_data = True
 
         def set(self, objs, **kwargs):
@@ -141,8 +166,8 @@ def create_git_related_manager(superclass, field):
             # could be affected by `manager.clear()`. Refs #19816.
             objs = tuple(objs)
 
-            bulk = kwargs.pop('bulk', True)
-            clear = kwargs.pop('clear', False)
+            bulk = kwargs.pop("bulk", True)
+            clear = kwargs.pop("clear", False)
 
             db = router.db_for_write(self.model)
             with transaction.atomic(using=db, savepoint=False):
@@ -160,27 +185,41 @@ def create_git_related_manager(superclass, field):
 
                     self.remove(*old_objs)
                     self.add(*new_objs, bulk=bulk)
+
         set.alters_data = True
 
         def create(self, **kwargs):
             kwargs[self.commit_id_field_name] = self.commit_id
             kwargs[self.problem_field_name] = self.problem
             db = router.db_for_write(self.model)
-            return super(ProblemGitRelatedObjectManager, self).using(db).create(**kwargs)
+            return (
+                super(ProblemGitRelatedObjectManager, self).using(db).create(**kwargs)
+            )
+
         create.alters_data = True
 
         def get_or_create(self, **kwargs):
             kwargs[self.commit_id_field_name] = self.commit_id
             kwargs[self.problem_field_name] = self.problem
             db = router.db_for_write(self.model)
-            return super(ProblemGitRelatedObjectManager, self).using(db).get_or_create(**kwargs)
+            return (
+                super(ProblemGitRelatedObjectManager, self)
+                .using(db)
+                .get_or_create(**kwargs)
+            )
+
         get_or_create.alters_data = True
 
         def update_or_create(self, **kwargs):
             kwargs[self.commit_id_field_name] = self.commit_id
             kwargs[self.problem_field_name] = self.problem
             db = router.db_for_write(self.model)
-            return super(ProblemGitRelatedObjectManager, self).using(db).update_or_create(**kwargs)
+            return (
+                super(ProblemGitRelatedObjectManager, self)
+                .using(db)
+                .update_or_create(**kwargs)
+            )
+
         update_or_create.alters_data = True
 
     return ProblemGitRelatedObjectManager
@@ -248,7 +287,7 @@ class DBToGitForeignKeyDescriptor(object):
         self.problem_field_name = field.problem_field_name
 
     def get_cache_name(self):
-        return '_cache_%s' % self.field.attname
+        return "_cache_%s" % self.field.attname
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -258,13 +297,14 @@ class DBToGitForeignKeyDescriptor(object):
         if not hasattr(instance, self.get_cache_name()):
             pk = getattr(instance, self.field.attname, self.field.get_default())
             git_transaction = Transaction(
-                repository_path=repository_path,
-                commit_id=commit_id
+                repository_path=repository_path, commit_id=commit_id
             )
             if pk is None:
                 obj = None
             else:
-                obj = self.field.target.objects.with_transaction(git_transaction).get(pk=pk)
+                obj = self.field.target.objects.with_transaction(git_transaction).get(
+                    pk=pk
+                )
             setattr(instance, self.get_cache_name(), obj)
         return getattr(instance, self.get_cache_name())
 
@@ -295,9 +335,9 @@ class DBToGitForeignKey(GitToGitForeignKey):
     def deconstruct(self):
         name, path, args, kwargs = super(DBToGitForeignKey, self).deconstruct()
         if isinstance(self.target, six.string_types):
-            kwargs['to'] = self.target
+            kwargs["to"] = self.target
         else:
-            kwargs['to'] = "%s.%s" % (
+            kwargs["to"] = "%s.%s" % (
                 self.target._meta.app_label,
                 self.target._meta.object_name,
             )
@@ -316,7 +356,7 @@ class DBToGitReadOnlyForeignKey(DBToGitForeignKey):
         self.attname, self.column = self.get_attname_column()
         self.concrete = False
         if self.verbose_name is None and self.name:
-            self.verbose_name = self.name.replace('_', ' ')
+            self.verbose_name = self.name.replace("_", " ")
 
     def contribute_to_class(self, cls, name, virtual_only=True):
         self.set_attributes_from_name(name)
@@ -326,8 +366,11 @@ class DBToGitReadOnlyForeignKey(DBToGitForeignKey):
         else:
             cls._meta.add_field(self)
         if self.choices:
-            setattr(cls, 'get_%s_display' % self.name,
-                    curry(cls._get_FIELD_display, field=self))
+            setattr(
+                cls,
+                "get_%s_display" % self.name,
+                curry(cls._get_FIELD_display, field=self),
+            )
         setattr(cls, self.name, self.forward_descriptor(self))
 
         def resolve_related_class(model, related, field):
@@ -338,7 +381,6 @@ class DBToGitReadOnlyForeignKey(DBToGitForeignKey):
 
 
 class ReadOnlyDescriptor(object):
-
     def __init__(self, attr, default):
         self.attr = attr
         self.default = default
@@ -356,12 +398,13 @@ class ReadOnlyDescriptor(object):
 class ReadOnlyGitToGitForeignKey(GitToGitForeignKey):
     # TODO: Make sure this is not written in dump
     def contribute_to_class(self, cls, name, *args, **kwargs):
-        super(ReadOnlyGitToGitForeignKey, self).contribute_to_class(cls, name, *args, **kwargs)
+        super(ReadOnlyGitToGitForeignKey, self).contribute_to_class(
+            cls, name, *args, **kwargs
+        )
         setattr(cls, self.attname, ReadOnlyDescriptor(self.attname, self.get_default()))
 
 
 def create_db_to_git_many_to_many_manager(problem_field, commit_field, *args, **kwargs):
-
     cls = create_many_to_many_manager(*args, **kwargs)
 
     class ManyToManyManager(cls):
@@ -369,16 +412,12 @@ def create_db_to_git_many_to_many_manager(problem_field, commit_field, *args, **
         def transaction(self):
             repository_path = getattr(self.instance, problem_field).repository_path
             commit_id = getattr(self.instance, commit_field)
-            return Transaction(
-                repository_path=repository_path,
-                commit_id=commit_id
-            )
+            return Transaction(repository_path=repository_path, commit_id=commit_id)
 
     return ManyToManyManager
 
 
 class DBToGitManyToManyDescriptor(ManyToManyDescriptor):
-
     def __init__(self, field):
         super(DBToGitManyToManyDescriptor, self).__init__(field, reverse=False)
 
@@ -394,7 +433,6 @@ class DBToGitManyToManyDescriptor(ManyToManyDescriptor):
 
 
 class DBToGitManyToManyField(models.TextField):
-
     def __init__(self, to, problem_field_name, commit_id_field_name, *args, **kwargs):
         super(DBToGitManyToManyField, self).__init__(*args, **kwargs)
         self.to = to
@@ -402,18 +440,21 @@ class DBToGitManyToManyField(models.TextField):
         self.commit_id_field_name = commit_id_field_name
 
     def contribute_to_class(self, cls, name, *args, **kwargs):
-        super(DBToGitManyToManyField, self).contribute_to_class(cls, name, *args, **kwargs)
+        super(DBToGitManyToManyField, self).contribute_to_class(
+            cls, name, *args, **kwargs
+        )
         setattr(cls, name, DBToGitManyToManyDescriptor(self))
 
         def resolve_related_class(model, related, field):
             field.target = related
             # TODO: Support backward relation
+
         lazy_related_operation(resolve_related_class, cls, self.to, field=self)
 
     def get_prep_value(self, value):
         if isinstance(value, str):
             return value
-        elif hasattr(value, 'all'):
+        elif hasattr(value, "all"):
             pk_list = [obj.pk for obj in value.all()]
         else:
             pk_list = list(value)
@@ -426,7 +467,7 @@ class DBToGitManyToManyField(models.TextField):
         else:
             return value
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         return self.to_python(value)
 
     def deconstruct(self):
@@ -438,15 +479,13 @@ class DBToGitManyToManyField(models.TextField):
 
     def formfield(self, **kwargs):
         defaults = {
-            'form_class': forms.ModelMultipleChoiceField,
-            'queryset': self.target.objects,
+            "form_class": forms.ModelMultipleChoiceField,
+            "queryset": self.target.objects,
         }
         defaults.update(kwargs)
-        if defaults.get('initial') is not None:
-            initial = defaults['initial']
+        if defaults.get("initial") is not None:
+            initial = defaults["initial"]
             if callable(initial):
                 initial = initial()
-            defaults['initial'] = [i.pk for i in initial]
+            defaults["initial"] = [i.pk for i in initial]
         return super(models.TextField, self).formfield(**defaults)
-
-

@@ -7,20 +7,23 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0012_auto_20160912_0934'),
+        ("problems", "0012_auto_20160912_0934"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='validator',
-            old_name='_validate_all_subtasks',
-            new_name='global_validator',
+            model_name="validator",
+            old_name="_validate_all_subtasks",
+            new_name="global_validator",
         ),
         migrations.AlterField(
-            model_name='validator',
-            name='code',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.SourceFile', verbose_name='source code'),
+            model_name="validator",
+            name="code",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                to="problems.SourceFile",
+                verbose_name="source code",
+            ),
         ),
     ]

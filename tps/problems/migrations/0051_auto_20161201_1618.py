@@ -7,15 +7,18 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0050_discussion_closed'),
+        ("problems", "0050_discussion_closed"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='exportpackagecreationtask',
-            name='request',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='export_tasks', to='problems.ExportPackage'),
+            model_name="exportpackagecreationtask",
+            name="request",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="export_tasks",
+                to="problems.ExportPackage",
+            ),
         ),
     ]

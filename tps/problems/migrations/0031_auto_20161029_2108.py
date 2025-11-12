@@ -7,44 +7,75 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0001_initial'),
-        ('problems', '0030_auto_20161025_2014'),
+        ("tasks", "0001_initial"),
+        ("problems", "0030_auto_20161025_2014"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CompileJob',
+            name="CompileJob",
             fields=[
-                ('task_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='tasks.Task')),
-                ('source_file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='compile_jobs', to='problems.SourceFile')),
+                (
+                    "task_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=models.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="tasks.Task",
+                    ),
+                ),
+                (
+                    "source_file",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        related_name="compile_jobs",
+                        to="problems.SourceFile",
+                    ),
+                ),
             ],
-            bases=('tasks.task',),
+            bases=("tasks.task",),
         ),
         migrations.RemoveField(
-            model_name='solutionrunresult',
-            name='id',
+            model_name="solutionrunresult",
+            name="id",
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='task_ptr',
-            field=models.OneToOneField(auto_created=True, default=None, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='tasks.Task'),
+            model_name="solutionrunresult",
+            name="task_ptr",
+            field=models.OneToOneField(
+                auto_created=True,
+                default=None,
+                on_delete=models.CASCADE,
+                parent_link=True,
+                primary_key=True,
+                serialize=False,
+                to="tasks.Task",
+            ),
             preserve_default=False,
         ),
         migrations.RemoveField(
-            model_name='validatorresult',
-            name='id',
+            model_name="validatorresult",
+            name="id",
         ),
         migrations.AddField(
-            model_name='validatorresult',
-            name='task_ptr',
-            field=models.OneToOneField(auto_created=True, default=None, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='tasks.Task'),
+            model_name="validatorresult",
+            name="task_ptr",
+            field=models.OneToOneField(
+                auto_created=True,
+                default=None,
+                on_delete=models.CASCADE,
+                parent_link=True,
+                primary_key=True,
+                serialize=False,
+                to="tasks.Task",
+            ),
             preserve_default=False,
         ),
-
         migrations.AlterUniqueTogether(
-            name='validatorresult',
-            unique_together=set([('testcase', 'validator')]),
+            name="validatorresult",
+            unique_together=set([("testcase", "validator")]),
         ),
     ]

@@ -1,5 +1,3 @@
-# Amir Keivan Mohtashami
-# Mohammad Javad Naderi
 import hashlib
 import heapq
 import logging
@@ -31,20 +29,31 @@ from problems.models.generic import FileSystemPopulatedModel
 from tasks.tasks import CeleryTask
 
 
-
-__all__ = ["Problem", "ProblemRevision", "ProblemBranch", "ProblemCommit", "NewProblemBranch"]
+__all__ = [
+    "Problem",
+    "ProblemRevision",
+    "ProblemBranch",
+    "ProblemCommit",
+    "NewProblemBranch",
+]
 
 logger = logging.getLogger(__name__)
 
 
 class Problem(models.Model):
-
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("creator"), related_name='+')
-    creation_date = models.DateTimeField(verbose_name=_("creation date"), auto_now_add=True)
-    files = models.ManyToManyField(FileModel, verbose_name=_("problem files"), blank=True)
-    repository_path = models.CharField(verbose_name=_("repository path"), max_length=256, blank=True)
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_("creator"), related_name="+"
+    )
+    creation_date = models.DateTimeField(
+        verbose_name=_("creation date"), auto_now_add=True
+    )
+    files = models.ManyToManyField(
+        FileModel, verbose_name=_("problem files"), blank=True
+    )
+    repository_path = models.CharField(
+        verbose_name=_("repository path"), max_length=256, blank=True
+    )
     code = models.CharField(verbose_name=_("code"), max_length=100, unique=True)
-
 
     @property
     def branches(self):
@@ -57,6 +66,7 @@ class Problem(models.Model):
     @staticmethod
     def get_or_create_template_problem():
         from problems.models.problem_data import ProblemData
+
         if not Problem.objects.filter(pk=0).exists():
             # FIXME: Maybe it would be better to allow null value for creator
             user = get_user_model().objects.filter(is_superuser=True)[0]
@@ -64,23 +74,20 @@ class Problem(models.Model):
             problem = Problem.objects.create(pk=0, creator_id=user.id)
             problem.save()
 
-            problem_revision = ProblemRevision.objects.create(author=user, problem=problem)
+            problem_revision = ProblemRevision.objects.create(
+                author=user, problem=problem
+            )
             problem_revision.commit("Created problem")
             ProblemBranch.objects.create(
-                name="master",
-                problem=problem,
-                head=problem_revision
+                name="master", problem=problem, head=problem_revision
             )
             ProblemData.objects.create(
-                problem=problem_revision,
-                title="BaseProblem",
-                code_name="BaseProblem"
+                problem=problem_revision, title="BaseProblem", code_name="BaseProblem"
             )
         return Problem.objects.get(pk=0)
 
     @classmethod
     def create_from_template_problem(cls, creator, title, code_name):
-
         template_problem = cls.get_or_create_template_problem()
 
         problem = cls.objects.create(creator=creator)
@@ -98,9 +105,7 @@ class Problem(models.Model):
         problem_revision.commit("Created problem")
 
         ProblemBranch.objects.create(
-            name="master",
-            problem=problem,
-            head=problem_revision
+            name="master", problem=problem, head=problem_revision
         )
         return problem
 
@@ -109,9 +114,15 @@ class Problem(models.Model):
 
 
 class NewProblemBranch(git_models.Model):
-    name = models.CharField(max_length=30, verbose_name=_("name"), validators=[RegexValidator(r'^\w{1,30}$')],
-                            primary_key=True)
-    head = ReadOnlyGitToGitForeignKey("ProblemCommit", verbose_name=_("head"), related_name='+', default=0)
+    name = models.CharField(
+        max_length=30,
+        verbose_name=_("name"),
+        validators=[RegexValidator(r"^\w{1,30}$")],
+        primary_key=True,
+    )
+    head = ReadOnlyGitToGitForeignKey(
+        "ProblemCommit", verbose_name=_("head"), related_name="+", default=0
+    )
 
     def __init__(self, *args, **kwargs):
         if "head" in kwargs:
@@ -151,12 +162,13 @@ class NewProblemBranch(git_models.Model):
             else:
                 raise ValueError("Invalid head")
             current_branch = self._transaction.repo.branches.local.create(
-                self.name,
-                commit
+                self.name, commit
             )
         if self.initial_pk != self.pk:
             current_branch.rename(self.pk)
-        self._transaction = Transaction(repository_path=repository.path, branch_name=self.name)
+        self._transaction = Transaction(
+            repository_path=repository.path, branch_name=self.name
+        )
 
     def get_branch_revision_for_user(self, user):
         return self.head
@@ -170,15 +182,34 @@ class NewProblemBranch(git_models.Model):
 
 
 class ProblemBranch(models.Model):
-    name = models.CharField(max_length=30, verbose_name=_("name"), validators=[RegexValidator(r'^\w{1,30}$')])
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("creator"), related_name='+', null=True)
-    problem = models.ForeignKey(Problem, verbose_name=_("problem"), db_index=True, related_name="+")
-    head = models.ForeignKey("ProblemRevision", verbose_name=_("head"), related_name='+', on_delete=models.PROTECT)
-    working_copy = models.OneToOneField("ProblemRevision", verbose_name=_("working copy"), related_name='+', null=True, on_delete=models.SET_NULL)
+    name = models.CharField(
+        max_length=30,
+        verbose_name=_("name"),
+        validators=[RegexValidator(r"^\w{1,30}$")],
+    )
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_("creator"), related_name="+", null=True
+    )
+    problem = models.ForeignKey(
+        Problem, verbose_name=_("problem"), db_index=True, related_name="+"
+    )
+    head = models.ForeignKey(
+        "ProblemRevision",
+        verbose_name=_("head"),
+        related_name="+",
+        on_delete=models.PROTECT,
+    )
+    working_copy = models.OneToOneField(
+        "ProblemRevision",
+        verbose_name=_("working copy"),
+        related_name="+",
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     class Meta:
-        unique_together = (("name", "problem"), )
-        index_together = (("name", "problem"), )
+        unique_together = (("name", "problem"),)
+        index_together = (("name", "problem"),)
 
     def has_working_copy(self):
         if self.working_copy is not None and self.working_copy.committed():
@@ -196,8 +227,9 @@ class ProblemBranch(models.Model):
 
     def get_or_create_working_copy(self, user):
         if not self.editable(user):
-            raise AssertionError("This user isn't allowed to "
-                                 "create a working copy on this branch")
+            raise AssertionError(
+                "This user isn't allowed to create a working copy on this branch"
+            )
         self.working_copy = self.head.clone()
         self.working_copy.author = user
         self.working_copy.save()
@@ -245,7 +277,9 @@ class ProblemBranch(models.Model):
 
     def merge(self, another_revision):
         if self.working_copy_has_changed():
-            raise AssertionError("Impossible to merge a revision with a branch with working copy")
+            raise AssertionError(
+                "Impossible to merge a revision with a branch with working copy"
+            )
         if not another_revision.committed():
             raise AssertionError("Impossible to merge with an uncommitted revision")
         self.working_copy = self.head.merge(another_revision)
@@ -260,7 +294,6 @@ class ProblemBranch(models.Model):
 
 
 class ProblemJudgeInitialization(CeleryTask):
-
     def execute(self, problem_revision):
         problem_revision._initialize_in_judge()
 
@@ -272,31 +305,35 @@ class CommitVerify(CeleryTask):
     def execute(self, repo_dir, commit_id, out_dir):
         command = "verify"
         tempdir = tempfile.mkdtemp()
-        logger.debug('temp directory at %s' % tempdir)
+        logger.debug("temp directory at %s" % tempdir)
         environment = os.environ.copy()
         environment["WEB_TERMINAL"] = "true"
 
-        transaction = Transaction(repository_path=repo_dir,
-                                  commit_id=commit_id)
+        transaction = Transaction(repository_path=repo_dir, commit_id=commit_id)
         revision = ProblemCommit.objects.with_transaction(transaction).get()
         revision.verification_status = VerificationStatus.Verifying
         revision.save()
 
-        os.system('git --git-dir="{repo_dir}" worktree add {work_dir} {commit_id}'.format(
-            repo_dir=repo_dir,
-            work_dir=tempdir,
-            commit_id=commit_id
-        ))
+        os.system(
+            'git --git-dir="{repo_dir}" worktree add {work_dir} {commit_id}'.format(
+                repo_dir=repo_dir, work_dir=tempdir, commit_id=commit_id
+            )
+        )
 
-        out_file = os.path.join(out_dir, '{command}_out.txt'.format(command=command))
-        err_file = os.path.join(out_dir, '{command}_err.txt'.format(command=command))
+        out_file = os.path.join(out_dir, "{command}_out.txt".format(command=command))
+        err_file = os.path.join(out_dir, "{command}_err.txt".format(command=command))
 
         failed = False
 
         with open(out_file, "w") as out_desc:
             with open(err_file, "w") as err_desc:
-                exit_code = subprocess.call(['tps', command], stdout=out_desc, stderr=err_desc,
-                                            cwd=tempdir, env=environment)
+                exit_code = subprocess.call(
+                    ["tps", command],
+                    stdout=out_desc,
+                    stderr=err_desc,
+                    cwd=tempdir,
+                    env=environment,
+                )
 
         failed &= exit_code != 0
 
@@ -304,7 +341,9 @@ class CommitVerify(CeleryTask):
         name = revision.problem_data.code
         if code != name:
             with open(err_file, "w+") as err_desc:
-                err_desc.write('The problem code does not match the name given in problem.json')
+                err_desc.write(
+                    "The problem code does not match the name given in problem.json"
+                )
             failed = True
 
         if failed:
@@ -313,15 +352,13 @@ class CommitVerify(CeleryTask):
             revision.verification_status = VerificationStatus.Successful
         revision.save()
 
-
-
         try:
             shutil.rmtree(tempdir)
-            os.system('git --git-dir="{repo_dir}" worktree prune'.format(
-                repo_dir=repo_dir,
-                work_dir=tempdir,
-                commit_id=commit_id
-            ))
+            os.system(
+                'git --git-dir="{repo_dir}" worktree prune'.format(
+                    repo_dir=repo_dir, work_dir=tempdir, commit_id=commit_id
+                )
+            )
         except Exception as e:
             logger.error(e, exc_info=e)
 
@@ -333,36 +370,40 @@ class CommitTestcaseGenerate(CeleryTask):
     def execute(self, repo_dir, commit_id, out_dir):
         command = "gen"
         tempdir = tempfile.mkdtemp()
-        logger.warning('temp directory at %s' % tempdir)
+        logger.warning("temp directory at %s" % tempdir)
         environment = os.environ.copy()
         environment["WEB_TERMINAL"] = "true"
 
-        transaction = Transaction(repository_path=repo_dir,
-                                  commit_id=commit_id)
+        transaction = Transaction(repository_path=repo_dir, commit_id=commit_id)
         revision = ProblemCommit.objects.with_transaction(transaction).get()
         revision.generation_status = GenerationStatus.Generating
         revision.save()
 
-        os.system('git --git-dir="{repo_dir}" worktree add {work_dir} {commit_id}'.format(
-            repo_dir=repo_dir,
-            work_dir=tempdir,
-            commit_id=commit_id
-        ))
+        os.system(
+            'git --git-dir="{repo_dir}" worktree add {work_dir} {commit_id}'.format(
+                repo_dir=repo_dir, work_dir=tempdir, commit_id=commit_id
+            )
+        )
 
-        out_file = os.path.join(out_dir, '{command}_out.txt'.format(command=command))
-        err_file = os.path.join(out_dir, '{command}_err.txt'.format(command=command))
+        out_file = os.path.join(out_dir, "{command}_out.txt".format(command=command))
+        err_file = os.path.join(out_dir, "{command}_err.txt".format(command=command))
 
         with open(out_file, "w") as out_desc:
             with open(err_file, "w") as err_desc:
-                exit_code = subprocess.call(['tps', command], stdout=out_desc, stderr=err_desc,
-                                            cwd=tempdir, env=environment)
+                exit_code = subprocess.call(
+                    ["tps", command],
+                    stdout=out_desc,
+                    stderr=err_desc,
+                    cwd=tempdir,
+                    env=environment,
+                )
 
         if exit_code != 0:
             revision.generation_status = GenerationStatus.GenerationFailed
         else:
             try:
-                tests_src = os.path.join(tempdir, 'tests')
-                tests_dst = os.path.join(out_dir, 'tests')
+                tests_src = os.path.join(tempdir, "tests")
+                tests_dst = os.path.join(out_dir, "tests")
                 if os.path.exists(tests_dst):
                     shutil.rmtree(tests_dst)
                 shutil.copytree(tests_src, tests_dst)
@@ -373,8 +414,8 @@ class CommitTestcaseGenerate(CeleryTask):
             else:
                 revision.generation_status = GenerationStatus.GenerationSuccessful
             try:
-                logs_src = os.path.join(tempdir, 'logs')
-                logs_dst = os.path.join(out_dir, 'tps_gen_logs')
+                logs_src = os.path.join(tempdir, "logs")
+                logs_dst = os.path.join(out_dir, "tps_gen_logs")
                 if os.path.exists(logs_dst):
                     shutil.rmtree(logs_dst)
                 shutil.copytree(logs_src, logs_dst)
@@ -382,58 +423,92 @@ class CommitTestcaseGenerate(CeleryTask):
                 with open(err_file, "a") as err_desc:
                     err_desc.write(str(e))
 
-
         revision.save()
         try:
             shutil.rmtree(tempdir)
-            os.system('git --git-dir="{repo_dir}" worktree prune'.format(
-                repo_dir=repo_dir,
-                work_dir=tempdir,
-                commit_id=commit_id
-            ))
+            os.system(
+                'git --git-dir="{repo_dir}" worktree prune'.format(
+                    repo_dir=repo_dir, work_dir=tempdir, commit_id=commit_id
+                )
+            )
         except Exception as e:
             logger.error(e, exc_info=e)
 
 
 class TaskStateEnum(Enum):
-
     def __init__(self, output_presentable=False, start_allowed=True):
         self.start_allowed = start_allowed
         self.output_presentable = output_presentable
 
 
 class GenerationStatus(TaskStateEnum):
-    NotGenerated = (),
-    ToBeGenerated = (False, False, ),
-    Generating = (True, False, ),
-    GenerationSuccessful = (True, ),
-    GenerationFailed = (True, )
+    NotGenerated = ((),)
+    ToBeGenerated = (
+        (
+            False,
+            False,
+        ),
+    )
+    Generating = (
+        (
+            True,
+            False,
+        ),
+    )
+    GenerationSuccessful = ((True,),)
+    GenerationFailed = (True,)
 
 
 class VerificationStatus(TaskStateEnum):
-    NotVerified = (),
-    ToBeVerified = (False, False, ),
-    Verifying = (True, False, ),
-    Successful = (True, ),
-    Failed = (True, )
+    NotVerified = ((),)
+    ToBeVerified = (
+        (
+            False,
+            False,
+        ),
+    )
+    Verifying = (
+        (
+            True,
+            False,
+        ),
+    )
+    Successful = ((True,),)
+    Failed = (True,)
 
 
 class ProblemCommit(FileSystemPopulatedModel):
+    commit_id = models.CharField(
+        verbose_name=_("commit id"), max_length=256, primary_key=True
+    )
 
-    commit_id = models.CharField(verbose_name=_("commit id"), max_length=256, primary_key=True)
+    judge_initialization_task_id = models.CharField(
+        verbose_name=_("initialization task id"), max_length=128, null=True
+    )
+    judge_initialization_successful = models.NullBooleanField(
+        verbose_name=_("initialization success")
+    )
+    judge_initialization_message = models.CharField(
+        verbose_name=_("initialization message"), max_length=256
+    )
 
-    judge_initialization_task_id = models.CharField(verbose_name=_("initialization task id"), max_length=128,
-                                                    null=True)
-    judge_initialization_successful = models.NullBooleanField(verbose_name=_("initialization success"))
-    judge_initialization_message = models.CharField(verbose_name=_("initialization message"), max_length=256)
+    generation_task_id = models.CharField(
+        verbose_name=_("generation task id"), max_length=128, null=True
+    )
+    generation_status = EnumField(
+        enum=GenerationStatus,
+        verbose_name=_("generation status"),
+        default=GenerationStatus.NotGenerated,
+    )
 
-    generation_task_id = models.CharField(verbose_name=_("generation task id"), max_length=128, null=True)
-    generation_status = EnumField(enum=GenerationStatus, verbose_name=_("generation status"),
-                                  default=GenerationStatus.NotGenerated)
-
-    verification_task_id = models.CharField(verbose_name=_("verification task id"), max_length=128, null=True)
-    verification_status = EnumField(enum=VerificationStatus, verbose_name=_("verification status"),
-                                    default=VerificationStatus.NotVerified)
+    verification_task_id = models.CharField(
+        verbose_name=_("verification task id"), max_length=128, null=True
+    )
+    verification_status = EnumField(
+        enum=VerificationStatus,
+        verbose_name=_("verification status"),
+        default=VerificationStatus.NotVerified,
+    )
 
     @property
     def commit_id(self):
@@ -464,7 +539,13 @@ class ProblemCommit(FileSystemPopulatedModel):
             commit_id = "___" + self.commit_id
         else:
             commit_id = self.commit_id
-        path = path + [str(self.problem.pk), commit_id[0], commit_id[1], commit_id[2], commit_id[3:]]
+        path = path + [
+            str(self.problem.pk),
+            commit_id[0],
+            commit_id[1],
+            commit_id[2],
+            commit_id[3:],
+        ]
         dir_path = os.path.join(*path)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
@@ -499,24 +580,32 @@ class ProblemCommit(FileSystemPopulatedModel):
     def _initialize_in_judge(self):
         if self.judge_initialization_successful:  # Optimization
             return
-        lock = cache.lock("problem_{}_{}_initialize_in_judge".format(
-            self.problem.pk, self.pk), timeout=60)
+        lock = cache.lock(
+            "problem_{}_{}_initialize_in_judge".format(self.problem.pk, self.pk),
+            timeout=60,
+        )
         if lock.acquire(blocking=False):
             try:
-                refreshed_obj = type(self).objects.with_transaction(self._transaction).get(pk=self.pk)
+                refreshed_obj = (
+                    type(self)
+                    .objects.with_transaction(self._transaction)
+                    .get(pk=self.pk)
+                )
                 if refreshed_obj.judge_initialization_successful:
                     return
-                self.judge_initialization_successful, self.judge_initialization_message = \
-                    self.get_task_type().initialize_problem(
-                        problem_code=self._get_judge_code(),
-                        code_name=self.problem_data.name,
-                        time_limit=self.problem_data.time_limit,
-                        memory_limit=self.problem_data.memory_limit,
-                        task_type_parameters=self.problem_data.task_type_parameters,
-                        helpers=[
-                            (grader.name, grader.code) for grader in self.grader_set.all()
-                        ],
-                    )
+                (
+                    self.judge_initialization_successful,
+                    self.judge_initialization_message,
+                ) = self.get_task_type().initialize_problem(
+                    problem_code=self._get_judge_code(),
+                    code_name=self.problem_data.name,
+                    time_limit=self.problem_data.time_limit,
+                    memory_limit=self.problem_data.memory_limit,
+                    task_type_parameters=self.problem_data.task_type_parameters,
+                    helpers=[
+                        (grader.name, grader.code) for grader in self.grader_set.all()
+                    ],
+                )
                 self.judge_initialization_task_id = None
                 self.save()
             finally:
@@ -525,11 +614,17 @@ class ProblemCommit(FileSystemPopulatedModel):
             raise Retry()
 
     def initialize_in_judge(self):
-        lock = cache.lock("problem_{}_{}_initialize_in_judge".format(
-            self.problem.pk, self.pk), timeout=60)
+        lock = cache.lock(
+            "problem_{}_{}_initialize_in_judge".format(self.problem.pk, self.pk),
+            timeout=60,
+        )
         if lock.acquire(blocking=False):
             try:
-                refreshed_obj = type(self).objects.with_transaction(self._transaction).get(pk=self.pk)
+                refreshed_obj = (
+                    type(self)
+                    .objects.with_transaction(self._transaction)
+                    .get(pk=self.pk)
+                )
                 if refreshed_obj.judge_initialization_successful:
                     return
                 if self.judge_initialization_task_id:
@@ -542,24 +637,28 @@ class ProblemCommit(FileSystemPopulatedModel):
                         self.judge_initialization_task_id = None
                         self.save()
                 if not self.judge_initialization_task_id:
-                    self.judge_initialization_task_id = ProblemJudgeInitialization().delay(self).id
+                    self.judge_initialization_task_id = (
+                        ProblemJudgeInitialization().delay(self).id
+                    )
                     self.save()
             finally:
                 lock.release()
 
     def generate_testcases(self):
-        self.generation_task_id = CommitTestcaseGenerate().delay(
-            self.repository_path,
-            self.commit_id,
-            self.get_storage_path()).id
+        self.generation_task_id = (
+            CommitTestcaseGenerate()
+            .delay(self.repository_path, self.commit_id, self.get_storage_path())
+            .id
+        )
         self.generation_status = GenerationStatus.ToBeGenerated
         self.save()
 
     def verify(self):
-        self.verification_task_id = CommitVerify().delay(
-            self.repository_path,
-            self.commit_id,
-            self.get_storage_path()).id
+        self.verification_task_id = (
+            CommitVerify()
+            .delay(self.repository_path, self.commit_id, self.get_storage_path())
+            .id
+        )
         self.verification_status = VerificationStatus.ToBeVerified
         self.save()
 
@@ -576,21 +675,46 @@ class ProblemCommit(FileSystemPopulatedModel):
 
 
 class ProblemRevision(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("revision owner"))
-    problem = models.ForeignKey(Problem, verbose_name=_("problem"), db_index=True, related_name="revisions")
-    revision_id = models.CharField(verbose_name=_("revision id"), max_length=40, null=True, blank=True, editable=False,
-                                   db_index=True, unique=True)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_("revision owner")
+    )
+    problem = models.ForeignKey(
+        Problem, verbose_name=_("problem"), db_index=True, related_name="revisions"
+    )
+    revision_id = models.CharField(
+        verbose_name=_("revision id"),
+        max_length=40,
+        null=True,
+        blank=True,
+        editable=False,
+        db_index=True,
+        unique=True,
+    )
     commit_message = models.TextField(verbose_name=_("commit message"), blank=False)
-    parent_revisions = models.ManyToManyField("ProblemRevision", verbose_name=_("parent revisions"), related_name='+')
+    parent_revisions = models.ManyToManyField(
+        "ProblemRevision", verbose_name=_("parent revisions"), related_name="+"
+    )
     depth = models.IntegerField(verbose_name=_("revision depth"), blank=True)
 
-    judge_initialization_task_id = models.CharField(verbose_name=_("initialization task id"), max_length=128, null=True)
-    judge_initialization_successful = models.NullBooleanField(verbose_name=_("initialization success"), default=None)
-    judge_initialization_message = models.CharField(verbose_name=_("initialization message"), max_length=256)
+    judge_initialization_task_id = models.CharField(
+        verbose_name=_("initialization task id"), max_length=128, null=True
+    )
+    judge_initialization_successful = models.NullBooleanField(
+        verbose_name=_("initialization success"), default=None
+    )
+    judge_initialization_message = models.CharField(
+        verbose_name=_("initialization message"), max_length=256
+    )
 
     USER_REVISION_OBJECTS = [
-        "solution_set", "validator_set", "checker_set", "inputgenerator_set", "grader_set",
-        "resource_set", "subtasks", "testcase_set",
+        "solution_set",
+        "validator_set",
+        "checker_set",
+        "inputgenerator_set",
+        "grader_set",
+        "resource_set",
+        "subtasks",
+        "testcase_set",
     ]
 
     def get_judge(self):
@@ -600,7 +724,7 @@ class ProblemRevision(models.Model):
         return self.get_judge().get_task_type(self.problem_data.task_type)
 
     def _initialize_in_judge(self):
-        self.judge_initialization_successful, self.judge_initialization_message = \
+        self.judge_initialization_successful, self.judge_initialization_message = (
             self.get_task_type().initialize_problem(
                 problem_code=str(self.pk),
                 time_limit=self.problem_data.time_limit,
@@ -610,6 +734,7 @@ class ProblemRevision(models.Model):
                     (grader.name, grader.code) for grader in self.grader_set.all()
                 ],
             )
+        )
         self.save()
 
     def initialize_in_judge(self):
@@ -620,7 +745,9 @@ class ProblemRevision(models.Model):
                     self.judge_initialization_task_id = None
                     self.save()
         if not self.judge_initialization_task_id:
-            self.judge_initialization_task_id = ProblemJudgeInitialization().delay(self).id
+            self.judge_initialization_task_id = (
+                ProblemJudgeInitialization().delay(self).id
+            )
             self.save()
 
     def invalidate_judge_initialization(self):
@@ -641,10 +768,13 @@ class ProblemRevision(models.Model):
             return str(self.pk)
 
     def __str__(self):
-        return "{} - {}: {}({})".format(self.problem, self.author, self.revision_id, self.pk)
+        return "{} - {}: {}({})".format(
+            self.problem, self.author, self.revision_id, self.pk
+        )
 
     def has_conflicts(self):
         from problems.models import Merge
+
         try:
             if self.merge_result.conflicts.exists():
                 return True
@@ -653,7 +783,9 @@ class ProblemRevision(models.Model):
 
     def commit(self, message):
         self.commit_message = message
-        self.revision_id = hashlib.sha1((str(self.id) + settings.SECRET_KEY).encode("utf-8")).hexdigest()
+        self.revision_id = hashlib.sha1(
+            (str(self.id) + settings.SECRET_KEY).encode("utf-8")
+        ).hexdigest()
         self.save()
 
     def committed(self):
@@ -679,6 +811,7 @@ class ProblemRevision(models.Model):
 
     def clone(self, cloned_instances=None, replace_objects=None):
         from problems.models import CloneableMixin
+
         if not cloned_instances:
             cloned_instances = {}
         if not replace_objects:
@@ -688,25 +821,29 @@ class ProblemRevision(models.Model):
             cloned_instances[self] = CloneableMixin.clone_model(self, cloned_instances)
         cloned_instances[self].parent_revisions.add(self)
         for queryset in self.USER_REVISION_OBJECTS:
-            cloned_instances = CloneableMixin.clone_queryset(getattr(self, queryset),
-                                                             cloned_instances=cloned_instances,
-                                                             replace_objects=replace_objects)
+            cloned_instances = CloneableMixin.clone_queryset(
+                getattr(self, queryset),
+                cloned_instances=cloned_instances,
+                replace_objects=replace_objects,
+            )
         for solution in self.solution_set.all():
             for verdict in solution.subtask_verdicts.all():
                 verdict.clone(
-                    cloned_instances=cloned_instances,
-                    replace_objects=replace_objects
+                    cloned_instances=cloned_instances, replace_objects=replace_objects
                 )
         cloned_instances = self.problem_data.clone(
-            cloned_instances=cloned_instances,
-            replace_objects=replace_objects
+            cloned_instances=cloned_instances, replace_objects=replace_objects
         )
 
-        self.problem_data.clone_relations(cloned_instances=cloned_instances, ignored_instances=ignored_instances)
+        self.problem_data.clone_relations(
+            cloned_instances=cloned_instances, ignored_instances=ignored_instances
+        )
         for queryset in self.USER_REVISION_OBJECTS:
-            CloneableMixin.clone_queryset_relations(getattr(self, queryset),
-                                                    cloned_instances=cloned_instances,
-                                                    ignored_instances=ignored_instances)
+            CloneableMixin.clone_queryset_relations(
+                getattr(self, queryset),
+                cloned_instances=cloned_instances,
+                ignored_instances=ignored_instances,
+            )
 
         return cloned_instances[self]
 
@@ -715,6 +852,7 @@ class ProblemRevision(models.Model):
 
     def has_merge_result(self):
         from problems.models import Merge
+
         try:
             merge_result = self.merge_result
         except Merge.DoesNotExist:
@@ -746,7 +884,9 @@ class ProblemRevision(models.Model):
             for parent_revision in revision.parent_revisions.all():
                 if parent_revision.pk not in marks:
                     marks[parent_revision.pk] = 0
-                    heapq.heappush(priority_queue, (-parent_revision.pk, parent_revision))
+                    heapq.heappush(
+                        priority_queue, (-parent_revision.pk, parent_revision)
+                    )
                 marks[parent_revision.pk] |= marks[revision.pk]
         return None
 
@@ -763,14 +903,18 @@ class ProblemRevision(models.Model):
             for parent_revision in revision.parent_revisions.all():
                 if parent_revision.pk not in marks:
                     marks.append(parent_revision.pk)
-                    heapq.heappush(priority_queue, (-parent_revision.pk, parent_revision))
+                    heapq.heappush(
+                        priority_queue, (-parent_revision.pk, parent_revision)
+                    )
             parents.append(revision)
         return parents
 
     def find_matching_pairs(self, another_revision):
         res = [(self.problem_data, another_revision.problem_data)]
         for attr in self.USER_REVISION_OBJECTS:
-            res = res + getattr(self, attr).find_matches(getattr(another_revision, attr))
+            res = res + getattr(self, attr).find_matches(
+                getattr(another_revision, attr)
+            )
         for solution in self.solution_set.all():
             for verdict in solution.subtask_verdicts.all():
                 res.append((verdict, verdict.get_match(another_revision)))
@@ -790,12 +934,19 @@ class ProblemRevision(models.Model):
 
     def merge(self, another_revision):
         from problems.models import Merge, Conflict
+
         if not self.committed():
             raise AssertionError("Commit changes before merge")
 
         merge_base = self.find_merge_base(another_revision)
-        base_current = merge_base.find_matching_pairs(self) if merge_base is not None else {}
-        base_other = merge_base.find_matching_pairs(another_revision) if merge_base is not None else {}
+        base_current = (
+            merge_base.find_matching_pairs(self) if merge_base is not None else {}
+        )
+        base_other = (
+            merge_base.find_matching_pairs(another_revision)
+            if merge_base is not None
+            else {}
+        )
         current_other = self.find_matching_pairs(another_revision)
         base_current_dict = {a: b for a, b in base_current if a is not None}
         current_base_dict = {b: a for a, b in base_current if b is not None}
@@ -806,7 +957,10 @@ class ProblemRevision(models.Model):
         for a, b in base_current_dict.items():
             matched_triples.append((a, b, base_other_dict.get(a, None)))
         for a, b in current_other:
-            if current_base_dict.get(a, None) is None and other_base_dict.get(b, None) is None:
+            if (
+                current_base_dict.get(a, None) is None
+                and other_base_dict.get(b, None) is None
+            ):
                 matched_triples.append((None, a, b))
 
         ours_ignored = {}
@@ -814,10 +968,12 @@ class ProblemRevision(models.Model):
         conflicts = []
 
         new_revision = self.clone()
-        merge = Merge.objects.create(merged_revision=new_revision,
-                                     our_revision=self,
-                                     their_revision=another_revision,
-                                     base_revision=merge_base)
+        merge = Merge.objects.create(
+            merged_revision=new_revision,
+            our_revision=self,
+            their_revision=another_revision,
+            base_revision=merge_base,
+        )
         current_new = self.find_matching_pairs(new_revision)
         current_new_dict = {a: b for a, b in current_new if a is not None}
 
@@ -850,7 +1006,9 @@ class ProblemRevision(models.Model):
 
         theirs_ignored[another_revision] = new_revision
 
-        another_revision.clone(cloned_instances=theirs_ignored, replace_objects=ours_ignored)
+        another_revision.clone(
+            cloned_instances=theirs_ignored, replace_objects=ours_ignored
+        )
         theirs_match = another_revision.find_matching_pairs(new_revision)
         theirs_match_dict = {a: b for a, b in theirs_match if a is not None}
         for obj in remove_matches:
@@ -866,16 +1024,16 @@ class ProblemRevision(models.Model):
                 current = None
             else:
                 current = current_new_dict[ours]
-            Conflict.objects.create(merge=merge, ours=ours, theirs=theirs, current=current)
+            Conflict.objects.create(
+                merge=merge, ours=ours, theirs=theirs, current=current
+            )
         new_revision.parent_revisions = [self, another_revision]
         new_revision.save()
         return new_revision
 
 
 class ProblemDataQuerySet(models.QuerySet):
-
     def find_matches(self, second_queryset, matching_fields=None):
-
         if isinstance(second_queryset, models.Manager):
             second_queryset = second_queryset.all()
 
@@ -890,6 +1048,3 @@ class ProblemDataQuerySet(models.QuerySet):
             my = self.all()[0]
 
         return [(my, other)]
-
-
-

@@ -8,16 +8,22 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('problems', '0075_mergerequest_problem'),
+        ("problems", "0075_mergerequest_problem"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mergerequest',
-            name='reopened_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='reopened by'),
+            model_name="mergerequest",
+            name="reopened_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="reopened by",
+            ),
         ),
     ]

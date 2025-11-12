@@ -8,30 +8,44 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0014_auto_20160922_1846'),
+        ("problems", "0014_auto_20160922_1846"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='conflict',
-            name='merge',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='conflicts', to='problems.Merge'),
+            model_name="conflict",
+            name="merge",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE, related_name="conflicts", to="problems.Merge"
+            ),
         ),
         migrations.AlterField(
-            model_name='problemdata',
-            name='problem',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='problem_data', to='problems.ProblemRevision'),
+            model_name="problemdata",
+            name="problem",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="problem_data",
+                to="problems.ProblemRevision",
+            ),
         ),
         migrations.AlterField(
-            model_name='problemrevision',
-            name='author',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='revision owner'),
+            model_name="problemrevision",
+            name="author",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="revision owner",
+            ),
         ),
         migrations.AlterField(
-            model_name='problemrevision',
-            name='fork',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='revisions', to='problems.ProblemFork', verbose_name='fork'),
+            model_name="problemrevision",
+            name="fork",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="revisions",
+                to="problems.ProblemFork",
+                verbose_name="fork",
+            ),
         ),
     ]

@@ -7,146 +7,254 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('file_repository', '0004_filemodel_name'),
-        ('problems', '0007_auto_20160822_1614'),
+        ("file_repository", "0004_filemodel_name"),
+        ("problems", "0007_auto_20160822_1614"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SolutionRun',
+            name="SolutionRun",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('creation_date', models.DateTimeField(auto_now_add=True, verbose_name='creation date')),
-                ('problem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.ProblemRevision', verbose_name='problem revision')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "creation_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="creation date"
+                    ),
+                ),
+                (
+                    "problem",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.ProblemRevision",
+                        verbose_name="problem revision",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SolutionRunResult',
+            name="SolutionRunResult",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('score', models.FloatField(null=True, verbose_name='score')),
-                ('checker_contestant_comment', models.TextField(null=True, verbose_name='checker comment to contestant')),
-                ('checker_jury_comment', models.TextField(null=True, verbose_name='checker comment to jury')),
-                ('execution_time', models.FloatField(null=True, verbose_name='execution time')),
-                ('memory_usage', models.IntegerField(null=True, verbose_name='memory usage')),
-                ('exit_code', models.CharField(max_length=100, verbose_name='exit code')),
-                ('output_file', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='file_repository.FileModel', verbose_name='output file')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("score", models.FloatField(null=True, verbose_name="score")),
+                (
+                    "checker_contestant_comment",
+                    models.TextField(
+                        null=True, verbose_name="checker comment to contestant"
+                    ),
+                ),
+                (
+                    "checker_jury_comment",
+                    models.TextField(null=True, verbose_name="checker comment to jury"),
+                ),
+                (
+                    "execution_time",
+                    models.FloatField(null=True, verbose_name="execution time"),
+                ),
+                (
+                    "memory_usage",
+                    models.IntegerField(null=True, verbose_name="memory usage"),
+                ),
+                (
+                    "exit_code",
+                    models.CharField(max_length=100, verbose_name="exit code"),
+                ),
+                (
+                    "output_file",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=models.CASCADE,
+                        to="file_repository.FileModel",
+                        verbose_name="output file",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SolutionSubtaskExpectedScore',
+            name="SolutionSubtaskExpectedScore",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('score', models.FloatField(verbose_name='score')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("score", models.FloatField(verbose_name="score")),
             ],
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='SolutionTestExpectedScore',
+            name="SolutionTestExpectedScore",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('score', models.FloatField(verbose_name='score')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("score", models.FloatField(verbose_name="score")),
             ],
             bases=(models.Model,),
         ),
         migrations.AlterUniqueTogether(
-            name='solutionsubtaskscore',
+            name="solutionsubtaskscore",
             unique_together=set([]),
         ),
         migrations.RemoveField(
-            model_name='solutionsubtaskscore',
-            name='solution',
+            model_name="solutionsubtaskscore",
+            name="solution",
         ),
         migrations.RemoveField(
-            model_name='solutionsubtaskscore',
-            name='subtask',
+            model_name="solutionsubtaskscore",
+            name="subtask",
         ),
         migrations.AlterUniqueTogether(
-            name='solutiontestscore',
+            name="solutiontestscore",
             unique_together=set([]),
         ),
         migrations.RemoveField(
-            model_name='solutiontestscore',
-            name='solution',
+            model_name="solutiontestscore",
+            name="solution",
         ),
         migrations.RemoveField(
-            model_name='solutiontestscore',
-            name='testcase',
+            model_name="solutiontestscore",
+            name="testcase",
         ),
         migrations.AlterField(
-            model_name='solution',
-            name='code',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.SourceFile', verbose_name='code'),
+            model_name="solution",
+            name="code",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE, to="problems.SourceFile", verbose_name="code"
+            ),
         ),
         migrations.AlterField(
-            model_name='solution',
-            name='subtask_scores',
-            field=models.ManyToManyField(through='problems.SolutionSubtaskExpectedScore', to='problems.Subtask'),
+            model_name="solution",
+            name="subtask_scores",
+            field=models.ManyToManyField(
+                through="problems.SolutionSubtaskExpectedScore", to="problems.Subtask"
+            ),
         ),
         migrations.AlterField(
-            model_name='solution',
-            name='tests_scores',
-            field=models.ManyToManyField(through='problems.SolutionTestExpectedScore', to='problems.TestCase'),
+            model_name="solution",
+            name="tests_scores",
+            field=models.ManyToManyField(
+                through="problems.SolutionTestExpectedScore", to="problems.TestCase"
+            ),
         ),
         migrations.DeleteModel(
-            name='SolutionSubtaskScore',
+            name="SolutionSubtaskScore",
         ),
         migrations.DeleteModel(
-            name='SolutionTestScore',
+            name="SolutionTestScore",
         ),
         migrations.AddField(
-            model_name='solutiontestexpectedscore',
-            name='solution',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.Solution', verbose_name='solution'),
+            model_name="solutiontestexpectedscore",
+            name="solution",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                to="problems.Solution",
+                verbose_name="solution",
+            ),
         ),
         migrations.AddField(
-            model_name='solutiontestexpectedscore',
-            name='testcase',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.TestCase', verbose_name='testcase'),
+            model_name="solutiontestexpectedscore",
+            name="testcase",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                to="problems.TestCase",
+                verbose_name="testcase",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionsubtaskexpectedscore',
-            name='solution',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.Solution', verbose_name='solution'),
+            model_name="solutionsubtaskexpectedscore",
+            name="solution",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                to="problems.Solution",
+                verbose_name="solution",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionsubtaskexpectedscore',
-            name='subtask',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.Subtask', verbose_name='subtask'),
+            model_name="solutionsubtaskexpectedscore",
+            name="subtask",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE, to="problems.Subtask", verbose_name="subtask"
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution',
-            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, to='problems.Solution', verbose_name='solution'),
+            model_name="solutionrunresult",
+            name="solution",
+            field=models.ForeignKey(
+                editable=False,
+                on_delete=models.CASCADE,
+                to="problems.Solution",
+                verbose_name="solution",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='solution_run',
-            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='results', to='problems.SolutionRun', verbose_name='solution run'),
+            model_name="solutionrunresult",
+            name="solution_run",
+            field=models.ForeignKey(
+                editable=False,
+                on_delete=models.CASCADE,
+                related_name="results",
+                to="problems.SolutionRun",
+                verbose_name="solution run",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrunresult',
-            name='testcase',
-            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, to='problems.TestCase', verbose_name='testcase'),
+            model_name="solutionrunresult",
+            name="testcase",
+            field=models.ForeignKey(
+                editable=False,
+                on_delete=models.CASCADE,
+                to="problems.TestCase",
+                verbose_name="testcase",
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrun',
-            name='solutions',
-            field=models.ManyToManyField(to='problems.Solution', verbose_name='solution'),
+            model_name="solutionrun",
+            name="solutions",
+            field=models.ManyToManyField(
+                to="problems.Solution", verbose_name="solution"
+            ),
         ),
         migrations.AddField(
-            model_name='solutionrun',
-            name='testcases',
-            field=models.ManyToManyField(to='problems.TestCase', verbose_name='testcases'),
+            model_name="solutionrun",
+            name="testcases",
+            field=models.ManyToManyField(
+                to="problems.TestCase", verbose_name="testcases"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='solutiontestexpectedscore',
-            unique_together=set([('solution', 'testcase')]),
+            name="solutiontestexpectedscore",
+            unique_together=set([("solution", "testcase")]),
         ),
         migrations.AlterUniqueTogether(
-            name='solutionsubtaskexpectedscore',
-            unique_together=set([('solution', 'subtask')]),
+            name="solutionsubtaskexpectedscore",
+            unique_together=set([("solution", "subtask")]),
         ),
     ]

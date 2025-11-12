@@ -7,15 +7,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0077_auto_20170328_2140'),
+        ("problems", "0077_auto_20170328_2140"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='merge',
-            name='base_revision',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='problems.ProblemRevision'),
+            model_name="merge",
+            name="base_revision",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="problems.ProblemRevision",
+            ),
         ),
     ]

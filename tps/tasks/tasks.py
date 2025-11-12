@@ -21,38 +21,39 @@ class TaskType(type):
     If no :attr:`Task.name` attribute is provided, then the name is generated
     from the module and class name.
     """
+
     _creation_count = {}  # used by old non-abstract task classes
 
     def __new__(cls, name, bases, attrs):
         new = super(TaskType, cls).__new__
-        task_module = attrs.get('__module__') or '__main__'
+        task_module = attrs.get("__module__") or "__main__"
 
         # - Abstract class: abstract attribute should not be inherited.
-        abstract = attrs.pop('abstract', None)
-        if abstract or not attrs.get('autoregister', True):
+        abstract = attrs.pop("abstract", None)
+        if abstract or not attrs.get("autoregister", True):
             return new(cls, name, bases, attrs)
 
         # The 'app' attribute is now a property, with the real app located
         # in the '_app' attribute.  Previously this was a regular attribute,
         # so we should support classes defining it.
-        app = attrs.pop('_app', None) or attrs.pop('app', None)
+        app = attrs.pop("_app", None) or attrs.pop("app", None)
 
         # Attempt to inherit app from one the bases
         if not isinstance(app, Proxy) and app is None:
             for base in bases:
-                if getattr(base, '_app', None):
+                if getattr(base, "_app", None):
                     app = base._app
                     break
             else:
                 app = current_app._get_current_object()
-        attrs['_app'] = app
+        attrs["_app"] = app
 
         # - Automatically generate missing/empty name.
-        task_name = attrs.get('name')
+        task_name = attrs.get("name")
         if not task_name:
-            attrs['name'] = task_name = gen_task_name(app, name, task_module)
+            attrs["name"] = task_name = gen_task_name(app, name, task_module)
 
-        if not attrs.get('_decorated'):
+        if not attrs.get("_decorated"):
             # non decorated tasks must also be shared in case
             # an app is created multiple times due to modules
             # imported under multiple names.
@@ -60,17 +61,21 @@ class TaskType(type):
             # People should not use non-abstract task classes anymore,
             # use the task decorator.
             from celery._state import connect_on_app_finalize
-            unique_name = '.'.join([task_module, name])
+
+            unique_name = ".".join([task_module, name])
             if unique_name not in cls._creation_count:
                 # the creation count is used as a safety
                 # so that the same task is not added recursively
                 # to the set of constructors.
                 cls._creation_count[unique_name] = 1
-                connect_on_app_finalize(_CompatShared(
-                    unique_name,
-                    lambda app: TaskType.__new__(cls, name, bases,
-                                                 dict(attrs, _app=app)),
-                ))
+                connect_on_app_finalize(
+                    _CompatShared(
+                        unique_name,
+                        lambda app: TaskType.__new__(
+                            cls, name, bases, dict(attrs, _app=app)
+                        ),
+                    )
+                )
 
         # - Create and register class.
         # Because of the way import happens (recursively)
@@ -89,7 +94,6 @@ class TaskType(type):
 
 
 class CeleryTask(celery.Task, metaclass=TaskType):
-
     serializer = DjangoPKSerializer.name
     DEPENDENCY_WAIT_TIME = 3
     MAX_DEPENDENCY_WAIT_TIME = 120
@@ -108,7 +112,10 @@ class CeleryTask(celery.Task, metaclass=TaskType):
         pass
 
     def retry_countdown(self):
-        return min(self.MAX_DEPENDENCY_WAIT_TIME, self.DEPENDENCY_WAIT_TIME * self.request.retries)
+        return min(
+            self.MAX_DEPENDENCY_WAIT_TIME,
+            self.DEPENDENCY_WAIT_TIME * self.request.retries,
+        )
 
     def run(self, *args, **kwargs):
         try:
@@ -143,5 +150,5 @@ def set_state_to_sent(sender=None, headers=None, body=None, **kwargs):
 
     # information about task are located in headers for task messages
     # using the task protocol version 2.
-    info = headers if 'task' in headers else body
-    backend.store_result(info['id'], None, "SENT")
+    info = headers if "task" in headers else body
+    backend.store_result(info["id"], None, "SENT")

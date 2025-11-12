@@ -7,15 +7,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0046_merge'),
+        ("problems", "0046_merge"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='problemfork',
-            name='head',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='problems.ProblemRevision', verbose_name='head'),
+            model_name="problemfork",
+            name="head",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="problems.ProblemRevision",
+                verbose_name="head",
+            ),
         ),
     ]

@@ -20,22 +20,32 @@ def set_branch_creator(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('problems', '0084_auto_20170427_0939'),
+        ("problems", "0084_auto_20170427_0939"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problembranch',
-            name='creator',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='creator'),
+            model_name="problembranch",
+            name="creator",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="creator",
+            ),
         ),
         migrations.RunPython(set_branch_creator, migrations.RunPython.noop),
         migrations.AlterField(
-            model_name='problem',
-            name='creator',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='creator'),
+            model_name="problem",
+            name="creator",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="creator",
+            ),
         ),
     ]

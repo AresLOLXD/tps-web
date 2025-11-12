@@ -16,22 +16,33 @@ def update_problem_field_of_merge_request(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0074_auto_20170301_2347'),
+        ("problems", "0074_auto_20170301_2347"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mergerequest',
-            name='problem',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='merge_requests', to='problems.Problem', verbose_name='problem'),
+            model_name="mergerequest",
+            name="problem",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="merge_requests",
+                to="problems.Problem",
+                verbose_name="problem",
+            ),
         ),
-        migrations.RunPython(update_problem_field_of_merge_request, migrations.RunPython.noop),
+        migrations.RunPython(
+            update_problem_field_of_merge_request, migrations.RunPython.noop
+        ),
         migrations.AlterField(
-            model_name='mergerequest',
-            name='problem',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='merge_requests',
-                                    to='problems.Problem', verbose_name='problem'),
+            model_name="mergerequest",
+            name="problem",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="merge_requests",
+                to="problems.Problem",
+                verbose_name="problem",
+            ),
         ),
     ]

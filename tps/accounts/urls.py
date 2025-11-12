@@ -1,10 +1,10 @@
-from django.conf.urls import url
+from django.urls import re_path
 from accounts import views
 
 
 urlpatterns = [
-    url(r'^profile', views.view_profile, name='profile'),
-    url(r'^password', views.change_password, name='change_password'),
-    url(r'^login/$', views.login, name='login'),
-    url(r'^logout/$', views.logout, name='logout'),
+    re_path(r"^profile", views.view_profile, name="profile"),
+    re_path(r"^password", views.change_password, name="change_password"),
+    re_path(r"^login/$", views.login, name="login"),
+    re_path(r"^logout/$", views.logout, name="logout"),
 ]

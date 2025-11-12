@@ -8,55 +8,113 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('file_repository', '0006_auto_20161108_2010'),
-        ('problems', '0035_auto_20161109_0352'),
+        ("file_repository", "0006_auto_20161108_2010"),
+        ("problems", "0035_auto_20161109_0352"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='InputGenerator',
+            name="InputGenerator",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256, validators=[django.core.validators.RegexValidator(code='invalid_file_name', inverse_match=False, message='please enter a valid file name.', regex='^[a-zA-Z0-9_\\-](?:\\.|[a-zA-Z0-9_\\-])*$')], verbose_name='name')),
-                ('source_language', models.CharField(choices=[('c++', 'c++')], max_length=200)),
-                ('last_compile_log', models.TextField(verbose_name='last compile log')),
-                ('_compiled_file', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='compiled file')),
-                ('problem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.ProblemRevision', verbose_name='problem')),
-                ('source_file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='source file')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=256,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                code="invalid_file_name",
+                                inverse_match=False,
+                                message="please enter a valid file name.",
+                                regex="^[a-zA-Z0-9_\\-](?:\\.|[a-zA-Z0-9_\\-])*$",
+                            )
+                        ],
+                        verbose_name="name",
+                    ),
+                ),
+                (
+                    "source_language",
+                    models.CharField(choices=[("c++", "c++")], max_length=200),
+                ),
+                ("last_compile_log", models.TextField(verbose_name="last compile log")),
+                (
+                    "_compiled_file",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=models.CASCADE,
+                        related_name="+",
+                        to="file_repository.FileModel",
+                        verbose_name="compiled file",
+                    ),
+                ),
+                (
+                    "problem",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.ProblemRevision",
+                        verbose_name="problem",
+                    ),
+                ),
+                (
+                    "source_file",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        related_name="+",
+                        to="file_repository.FileModel",
+                        verbose_name="source file",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AlterField(
-            model_name='compilejob',
-            name='content_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            model_name="compilejob",
+            name="content_type",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE, to="contenttypes.ContentType"
+            ),
         ),
         migrations.AlterField(
-            model_name='compilejob',
-            name='object_id',
+            model_name="compilejob",
+            name="object_id",
             field=models.PositiveIntegerField(),
         ),
         migrations.AlterField(
-            model_name='validator',
-            name='source_language',
-            field=models.CharField(choices=[('c++', 'c++')], max_length=200),
+            model_name="validator",
+            name="source_language",
+            field=models.CharField(choices=[("c++", "c++")], max_length=200),
         ),
         migrations.AlterField(
-            model_name='verifier',
-            name='source_language',
-            field=models.CharField(choices=[('c++', 'c++')], max_length=200),
+            model_name="verifier",
+            name="source_language",
+            field=models.CharField(choices=[("c++", "c++")], max_length=200),
         ),
         migrations.AddField(
-            model_name='testcase',
-            name='_input_generator',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='problems.InputGenerator', verbose_name='generator'),
+            model_name="testcase",
+            name="_input_generator",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="problems.InputGenerator",
+                verbose_name="generator",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='inputgenerator',
-            unique_together=set([('problem', 'name')]),
+            name="inputgenerator",
+            unique_together=set([("problem", "name")]),
         ),
     ]

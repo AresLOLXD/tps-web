@@ -7,30 +7,47 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0004_auto_20160730_0714'),
+        ("problems", "0004_auto_20160730_0714"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='testcase',
-            old_name='_input_generation_command',
-            new_name='_input_generation_parameters',
+            model_name="testcase",
+            old_name="_input_generation_command",
+            new_name="_input_generation_parameters",
         ),
         migrations.AddField(
-            model_name='testcase',
-            name='_input_generator',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='problems.SourceFile', verbose_name='generator'),
+            model_name="testcase",
+            name="_input_generator",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="problems.SourceFile",
+                verbose_name="generator",
+            ),
         ),
         migrations.AddField(
-            model_name='testcase',
-            name='_solution',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='problems.SourceFile', verbose_name='solution'),
+            model_name="testcase",
+            name="_solution",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="problems.SourceFile",
+                verbose_name="solution",
+            ),
         ),
         migrations.AlterField(
-            model_name='testcase',
-            name='_output_uploaded_file',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='file_repository.FileModel', verbose_name='output file'),
+            model_name="testcase",
+            name="_output_uploaded_file",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="file_repository.FileModel",
+                verbose_name="output file",
+            ),
         ),
     ]

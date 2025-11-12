@@ -7,52 +7,75 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0081_auto_20170407_1110'),
+        ("problems", "0081_auto_20170407_1110"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='solution',
-            name='subtask_scores',
+            model_name="solution",
+            name="subtask_scores",
         ),
         migrations.RemoveField(
-            model_name='solution',
-            name='subtask_verdict',
+            model_name="solution",
+            name="subtask_verdict",
         ),
         migrations.RemoveField(
-            model_name='solution',
-            name='tests_scores',
+            model_name="solution",
+            name="tests_scores",
         ),
         migrations.AlterField(
-            model_name='checker',
-            name='source_language',
-            field=models.CharField(choices=[('c++', 'c++'), ('java', 'java'), ('pas', 'pas')], max_length=200),
+            model_name="checker",
+            name="source_language",
+            field=models.CharField(
+                choices=[("c++", "c++"), ("java", "java"), ("pas", "pas")],
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='inputgenerator',
-            name='source_language',
-            field=models.CharField(choices=[('c++', 'c++'), ('java', 'java'), ('pas', 'pas')], max_length=200),
+            model_name="inputgenerator",
+            name="source_language",
+            field=models.CharField(
+                choices=[("c++", "c++"), ("java", "java"), ("pas", "pas")],
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='solutionsubtaskexpectedscore',
-            name='solution',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subtask_scores', to='problems.Solution', verbose_name='solution'),
+            model_name="solutionsubtaskexpectedscore",
+            name="solution",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="subtask_scores",
+                to="problems.Solution",
+                verbose_name="solution",
+            ),
         ),
         migrations.AlterField(
-            model_name='solutionsubtaskexpectedverdict',
-            name='solution',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subtask_verdict', to='problems.Solution', verbose_name='solution'),
+            model_name="solutionsubtaskexpectedverdict",
+            name="solution",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="subtask_verdict",
+                to="problems.Solution",
+                verbose_name="solution",
+            ),
         ),
         migrations.AlterField(
-            model_name='solutiontestexpectedscore',
-            name='solution',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tests_scores', to='problems.Solution', verbose_name='solution'),
+            model_name="solutiontestexpectedscore",
+            name="solution",
+            field=models.ForeignKey(
+                on_delete=models.CASCADE,
+                related_name="tests_scores",
+                to="problems.Solution",
+                verbose_name="solution",
+            ),
         ),
         migrations.AlterField(
-            model_name='validator',
-            name='source_language',
-            field=models.CharField(choices=[('c++', 'c++'), ('java', 'java'), ('pas', 'pas')], max_length=200),
+            model_name="validator",
+            name="source_language",
+            field=models.CharField(
+                choices=[("c++", "c++"), ("java", "java"), ("pas", "pas")],
+                max_length=200,
+            ),
         ),
     ]

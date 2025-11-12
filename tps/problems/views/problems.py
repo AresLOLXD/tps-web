@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 from django.http import HttpResponseRedirect
 from django.views.generic import View
 from django.shortcuts import render
@@ -11,14 +12,17 @@ __all__ = ["ProblemsListView", "ProblemAddView"]
 
 
 class ProblemsListView(View):
-
     def get(self, request):
         problems = Problem.objects.all()
 
-        return render(request, "problems/problems_list.html", context={
-            "problems": problems,
-            "branches_disabled": getattr(settings, "DISABLE_BRANCHES", False),
-        })
+        return render(
+            request,
+            "problems/problems_list.html",
+            context={
+                "problems": problems,
+                "branches_disabled": getattr(settings, "DISABLE_BRANCHES", False),
+            },
+        )
 
 
 class ProblemAddView(View):
@@ -30,11 +34,17 @@ class ProblemAddView(View):
         form = ProblemAddForm(request.POST, owner=request.user)
         if form.is_valid():
             obj = form.save()
-            return HttpResponseRedirect(reverse("problems:overview", kwargs={
-                "problem_id": obj.id,
-                "revision_slug": request.user.username if settings.DISABLE_BRANCHES and False
-                else obj.get_master_branch().get_slug()
-            }))
+            return HttpResponseRedirect(
+                reverse(
+                    "problems:overview",
+                    kwargs={
+                        "problem_id": obj.id,
+                        "revision_slug": request.user.username
+                        if settings.DISABLE_BRANCHES and False
+                        else obj.get_master_branch().get_slug(),
+                    },
+                )
+            )
 
         return render(request, self.template_name, context={"form": form})
 

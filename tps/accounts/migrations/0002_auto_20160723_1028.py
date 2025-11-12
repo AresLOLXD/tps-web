@@ -8,40 +8,95 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0001_initial'),
-        ('accounts', '0001_initial'),
+        ("problems", "0001_initial"),
+        ("accounts", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Permission',
+            name="Permission",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=120, verbose_name='permission name')),
-                ('description', models.TextField(blank=True, verbose_name='description')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=120, verbose_name="permission name"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="description"),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Role',
+            name="Role",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=40, verbose_name='role name')),
-                ('permissions', models.ManyToManyField(to='accounts.Permission', verbose_name='permissions')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=40, verbose_name="role name")),
+                (
+                    "permissions",
+                    models.ManyToManyField(
+                        to="accounts.Permission", verbose_name="permissions"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='UserProblem',
+            name="UserProblem",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('problem', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='problems.Problem', verbose_name='problem')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounts.Role', verbose_name='role')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "problem",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="problems.Problem",
+                        verbose_name="problem",
+                    ),
+                ),
+                (
+                    "role",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to="accounts.Role",
+                        verbose_name="role",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="user",
+                    ),
+                ),
             ],
         ),
         migrations.AlterUniqueTogether(
-            name='userproblem',
-            unique_together=set([('user', 'problem')]),
+            name="userproblem",
+            unique_together=set([("user", "problem")]),
         ),
     ]

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import View
@@ -16,7 +17,6 @@ __all__ = ["HistoryView", "DiffView"]
 
 
 class HistoryView(ProblemObjectView):
-
     def get(self, request, *args, **kwargs):
         commit_list = list(self.revision._transaction.walk(reverse=True))
         object_list = []
@@ -27,20 +27,26 @@ class HistoryView(ProblemObjectView):
                 else:
                     object_list.append((commit_list[i], None))
 
-        return render(request, "problems/history.html", context={
-            'object_list': object_list,
-        })
+        return render(
+            request,
+            "problems/history.html",
+            context={
+                "object_list": object_list,
+            },
+        )
 
 
 class DiffView(ProblemObjectView):
     def get(self, request, *args, **kwargs):
         other_slug = kwargs.pop("other_slug")
-        _, _, other_revision = extract_revision_data(self.problem.code, other_slug, request.user)
+        _, _, other_revision = extract_revision_data(
+            self.problem.code, other_slug, request.user
+        )
         ours_id = self.revision.commit_id
         theirs_id = other_revision.commit_id
         diff = self.revision._transaction.repo.diff(a=theirs_id, b=ours_id).patch
-        return render(request, "problems/diff.html", context={
-            "ours_id": ours_id,
-            "theirs_id": theirs_id,
-            "diff": diff
-        })
+        return render(
+            request,
+            "problems/diff.html",
+            context={"ours_id": ours_id, "theirs_id": theirs_id, "diff": diff},
+        )

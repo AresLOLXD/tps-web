@@ -8,35 +8,41 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('problems', '0071_mergerequest_status'),
+        ("problems", "0071_mergerequest_status"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='approvedchange',
-            name='base_object_content_type',
+            model_name="approvedchange",
+            name="base_object_content_type",
         ),
         migrations.RemoveField(
-            model_name='approvedchange',
-            name='merge_request',
+            model_name="approvedchange",
+            name="merge_request",
         ),
         migrations.RemoveField(
-            model_name='approvedchange',
-            name='updated_object_content_type',
+            model_name="approvedchange",
+            name="updated_object_content_type",
         ),
         migrations.AlterModelOptions(
-            name='mergerequest',
-            options={'ordering': ('-id',)},
+            name="mergerequest",
+            options={"ordering": ("-id",)},
         ),
         migrations.AddField(
-            model_name='mergerequest',
-            name='closed_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='closed by'),
+            model_name="mergerequest",
+            name="closed_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="closed by",
+            ),
         ),
         migrations.DeleteModel(
-            name='ApprovedChange',
+            name="ApprovedChange",
         ),
     ]

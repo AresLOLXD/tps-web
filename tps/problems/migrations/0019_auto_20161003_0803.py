@@ -7,21 +7,26 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0018_auto_20161002_1418'),
+        ("problems", "0018_auto_20161002_1418"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problemrevision',
-            name='commit_message',
-            field=models.TextField(default='', verbose_name='commit message'),
+            model_name="problemrevision",
+            name="commit_message",
+            field=models.TextField(default="", verbose_name="commit message"),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='problemfork',
-            name='working_copy',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='problems.ProblemRevision', verbose_name='working copy'),
+            model_name="problemfork",
+            name="working_copy",
+            field=models.OneToOneField(
+                null=True,
+                on_delete=models.CASCADE,
+                related_name="+",
+                to="problems.ProblemRevision",
+                verbose_name="working copy",
+            ),
         ),
     ]

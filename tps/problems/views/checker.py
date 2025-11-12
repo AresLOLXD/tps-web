@@ -1,17 +1,30 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 
 from problems.forms.checker import CheckerAddForm
 from problems.forms.files import SourceFileEditForm
 from problems.models import Checker
-from problems.views.generics import ProblemObjectEditView, RevisionObjectView, ProblemObjectAddView, \
-    ProblemObjectDeleteView, ProblemObjectShowSourceView, ProblemObjectDownloadView
+from problems.views.generics import (
+    ProblemObjectEditView,
+    RevisionObjectView,
+    ProblemObjectAddView,
+    ProblemObjectDeleteView,
+    ProblemObjectShowSourceView,
+    ProblemObjectDownloadView,
+)
 from problems.views.utils import get_git_object_or_404
 
-__all__ = ["CheckerListView", "CheckerActivateView",
-           "CheckerAddView", "CheckerDeleteView", "CheckerShowSourceView",
-           "CheckerEditView", "CheckerDownloadView", ]
+__all__ = [
+    "CheckerListView",
+    "CheckerActivateView",
+    "CheckerAddView",
+    "CheckerDeleteView",
+    "CheckerShowSourceView",
+    "CheckerEditView",
+    "CheckerDownloadView",
+]
 
 
 class CheckerListView(RevisionObjectView):
@@ -19,10 +32,11 @@ class CheckerListView(RevisionObjectView):
         checkers = self.revision.checker_set.all()
         resources = self.revision.resource_set.all()
 
-        return render(request, "problems/checkers_list.html", context={
-            "checkers": checkers,
-            "resources": resources
-        })
+        return render(
+            request,
+            "problems/checkers_list.html",
+            context={"checkers": checkers, "resources": resources},
+        )
 
 
 class CheckerActivateView(RevisionObjectView):
@@ -32,10 +46,12 @@ class CheckerActivateView(RevisionObjectView):
         problem_data.checker = checker
         problem_data.save()
 
-        return HttpResponseRedirect(reverse("problems:checkers", kwargs={
-            "problem_code": problem_code,
-            "revision_slug": revision_slug
-        }))
+        return HttpResponseRedirect(
+            reverse(
+                "problems:checkers",
+                kwargs={"problem_code": problem_code, "revision_slug": revision_slug},
+            )
+        )
 
 
 class CheckerAddView(ProblemObjectAddView):
@@ -44,17 +60,17 @@ class CheckerAddView(ProblemObjectAddView):
     permissions_required = ["add_checker"]
 
     def get_success_url(self, request, problem_code, revision_slug, obj):
-        return reverse("problems:checkers", kwargs={
-            "problem_code": problem_code,
-            "revision_slug": revision_slug
-        })
+        return reverse(
+            "problems:checkers",
+            kwargs={"problem_code": problem_code, "revision_slug": revision_slug},
+        )
 
 
 CheckerDeleteView = ProblemObjectDeleteView.as_view(
     object_type=Checker,
     permissions_required="delete_checkers",
     url_slug="checker_id",
-    redirect_to="problems:checkers"
+    redirect_to="problems:checkers",
 )
 
 
@@ -65,10 +81,10 @@ class CheckerShowSourceView(ProblemObjectShowSourceView):
     instance_slug = "checker_id"
 
     def get_next_url(self, request, problem_code, revision_slug, obj):
-        return reverse("problems:checkers", kwargs={
-            "problem_code": problem_code,
-            "revision_slug": revision_slug
-        })
+        return reverse(
+            "problems:checkers",
+            kwargs={"problem_code": problem_code, "revision_slug": revision_slug},
+        )
 
 
 class CheckerEditView(ProblemObjectEditView):
@@ -77,10 +93,10 @@ class CheckerEditView(ProblemObjectEditView):
     permissions_required = ["edit_checker"]
 
     def get_success_url(self, request, problem_code, revision_slug, obj):
-        return reverse("problems:checkers", kwargs={
-            "problem_code": problem_code,
-            "revision_slug": revision_slug
-        })
+        return reverse(
+            "problems:checkers",
+            kwargs={"problem_code": problem_code, "revision_slug": revision_slug},
+        )
 
     def get_instance(self, request, *args, **kwargs):
         return self.revision.checker_set.get(pk=kwargs.get("checker_id"))
@@ -88,7 +104,11 @@ class CheckerEditView(ProblemObjectEditView):
 
 class CheckerDownloadView(ProblemObjectDownloadView):
     def get_file(self, request, *args, **kwargs):
-        return get_git_object_or_404(self.revision.checker_set, pk=kwargs.get('checker_id')).file.file
+        return get_git_object_or_404(
+            self.revision.checker_set, pk=kwargs.get("checker_id")
+        ).file.file
 
     def get_name(self, request, *args, **kwargs):
-        return get_git_object_or_404(self.revision.checker_set, pk=kwargs.get('checker_id')).name
+        return get_git_object_or_404(
+            self.revision.checker_set, pk=kwargs.get("checker_id")
+        ).name

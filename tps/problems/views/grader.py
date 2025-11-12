@@ -1,20 +1,27 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 from django.shortcuts import render, get_object_or_404
 
 from problems.forms.grader import GraderAddForm, GraderEditForm
 from problems.models import Grader
 from problems.views.utils import get_git_object_or_404
-from problems.views.generics import RevisionObjectView, ProblemObjectAddView, ProblemObjectShowSourceView, \
-    ProblemObjectDeleteView, ProblemObjectEditView, ProblemObjectDownloadView
+from problems.views.generics import (
+    RevisionObjectView,
+    ProblemObjectAddView,
+    ProblemObjectShowSourceView,
+    ProblemObjectDeleteView,
+    ProblemObjectEditView,
+    ProblemObjectDownloadView,
+)
 
 
 class GradersListView(RevisionObjectView):
     def get(self, request, problem_code, revision_slug):
         graders = self.revision.grader_set.all()
 
-        return render(request, "problems/grader_list.html", context={
-            "graders": graders
-        })
+        return render(
+            request, "problems/grader_list.html", context={"graders": graders}
+        )
 
 
 class GraderAddView(ProblemObjectAddView):
@@ -23,10 +30,10 @@ class GraderAddView(ProblemObjectAddView):
     permissions_required = ["add_grader"]
 
     def get_success_url(self, request, problem_code, revision_slug, obj):
-        return reverse("problems:graders", kwargs={
-            "problem_code": problem_code,
-            "revision_slug": revision_slug
-        })
+        return reverse(
+            "problems:graders",
+            kwargs={"problem_code": problem_code, "revision_slug": revision_slug},
+        )
 
 
 class GraderEditView(ProblemObjectEditView):
@@ -35,10 +42,10 @@ class GraderEditView(ProblemObjectEditView):
     permissions_required = ["edit_grader"]
 
     def get_success_url(self, request, problem_code, revision_slug, obj):
-        return reverse("problems:graders", kwargs={
-            "problem_code": problem_code,
-            "revision_slug": revision_slug
-        })
+        return reverse(
+            "problems:graders",
+            kwargs={"problem_code": problem_code, "revision_slug": revision_slug},
+        )
 
     def get_instance(self, request, *args, **kwargs):
         return self.revision.grader_set.get(pk=kwargs.get("grader_id"))
@@ -48,7 +55,7 @@ GraderDeleteView = ProblemObjectDeleteView.as_view(
     object_type=Grader,
     url_slug="grader_id",
     permissions_required="delete_graders",
-    redirect_to="problems:graders"
+    redirect_to="problems:graders",
 )
 
 
@@ -59,15 +66,19 @@ class GraderShowSourceView(ProblemObjectShowSourceView):
     instance_slug = "grader_id"
 
     def get_next_url(self, request, problem_code, revision_slug, obj):
-        return reverse("problems:graders", kwargs={
-            "problem_code": problem_code,
-            "revision_slug": revision_slug
-        })
+        return reverse(
+            "problems:graders",
+            kwargs={"problem_code": problem_code, "revision_slug": revision_slug},
+        )
 
 
 class GraderDownloadView(ProblemObjectDownloadView):
     def get_file(self, request, *args, **kwargs):
-        return get_git_object_or_404(Grader, pk=kwargs.get('grader_id'), problem=self.revision).code.file
+        return get_git_object_or_404(
+            Grader, pk=kwargs.get("grader_id"), problem=self.revision
+        ).code.file
 
     def get_name(self, request, *args, **kwargs):
-        return get_git_object_or_404(Grader, pk=kwargs.get('grader_id'), problem=self.revision).name
+        return get_git_object_or_404(
+            Grader, pk=kwargs.get("grader_id"), problem=self.revision
+        ).name

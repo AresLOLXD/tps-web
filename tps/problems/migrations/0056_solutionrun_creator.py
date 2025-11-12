@@ -8,17 +8,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('problems', '0055_auto_20161202_2041'),
+        ("problems", "0055_auto_20161202_2041"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='solutionrun',
-            name='creator',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='creator'),
+            model_name="solutionrun",
+            name="creator",
+            field=models.ForeignKey(
+                default=0,
+                on_delete=models.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="creator",
+            ),
             preserve_default=False,
         ),
     ]
